@@ -1,0 +1,459 @@
+{
+    "enabled": true,
+    "strategyNum": 4,
+    "huntAsyncRun": true,
+    "huntPoolSize": 2,
+    "minStamina": 20,
+    "sleepShort": 1,
+    "sleepMedium": 2,
+    "sleepLong": 30,
+    "marchScreenTopBarHeight": 410,
+    "marchUnitHeight": 315,
+    "screenHeight": 1280,
+    "screenWidth": 720,
+    "allianceMembersBarHeight": 75,
+    "serverNumber": "571",
+    "strategies": {
+        "1": [
+            "morning",
+            "water",
+            "hunt",
+            "gather"
+        ],
+        "2": [
+            "hunt",
+            "gather",
+            "evening"
+        ],
+        "3": [
+            "hunt"
+        ],
+        "4": [
+            "evening"
+        ]
+    },
+    "positions": {
+        "searchButton": {
+            "x": 45,
+            "y": 840
+        },
+        "searchGoButton": {
+            "x": 610,
+            "y": 1100
+        },
+        "centerScreen": {
+            "x": 360,
+            "y": 640
+        },
+        "attackButton": {
+            "x": 360,
+            "y": 840
+        },
+        "backButton": {
+            "x": 50,
+            "y": 50
+        },
+        "marchButton": {
+            "x": 540,
+            "y": 1210
+        },
+        "marchButtonColorPick": {
+            "x": 450,
+            "y": 1210
+        },
+        "marchUnitHeading": {
+            "x": 0,
+            "y": 0,
+            "h": 90,
+            "w": 720
+        },
+        "marchUnitHeadingColorPick": {
+            "x": 700,
+            "y": 75
+        },
+        "marchUnits": {
+            "x": 85,
+            "y": 180,
+            "h": 40,
+            "w": 80
+        },
+        "allianceButton": {
+            "x": 500,
+            "y": 1230
+        },
+        "allianceMembersButton": {
+            "x": 360,
+            "y": 125
+        },
+        "allianceEvolutionButton": {
+            "x": 600,
+            "y": 770
+        },
+        "allianceEvolutionDevelopButton": {
+            "x": 175,
+            "y": 125
+        },
+        "allianceEvolutionCombatButton": {
+            "x": 540,
+            "y": 125
+        },
+        "allianceEvolutionDonateResourceButton": {
+            "x": 360,
+            "y": 970
+        },
+        "allianceEvolutionDonateDiamondButton": {
+            "x": 565,
+            "y": 970
+        },
+        "allianceMembersR1Button": {
+            "x": 680,
+            "y": 910
+        },
+        "allianceMembersBox": {
+            "x": 140,
+            "y": 430,
+            "h": 700,
+            "w": 400
+        },
+        "allianceMemberProfileBottomBar": {
+            "x": 0,
+            "y": 1110,
+            "h": 170,
+            "w": 720
+        },
+        "allianceEvolutionTopBar": {
+            "x": 0,
+            "y": 235,
+            "h": 300,
+            "w": 720
+        },
+        "findExoticPeaButton": {
+            "x": 50,
+            "y": 1110
+        },
+        "waterExoticPeaButton": {
+            "x": 360,
+            "y": 650
+        },
+        "returnFromAnthillButton": {
+            "x": 250,
+            "y": 1215
+        },
+        "VIPButton": {
+            "x": 105,
+            "y": 135
+        },
+        "VIPCheckButton": {
+            "x": 230,
+            "y": 495
+        },
+        "VIPClaimButton": {
+            "x": 360,
+            "y": 855
+        },
+        "VIPSignUpButton": {
+            "x": 660,
+            "y": 135
+        },
+        "packShopButton": {
+            "x": 675,
+            "y": 405
+        },
+        "packShopOneTimeOfferButton": {
+            "x": 70,
+            "y": 175
+        },
+        "packShopTimeLimitedOfferButton": {
+            "x": 205,
+            "y": 175
+        },
+        "packShopFreeBonusButton": {
+            "x": 630,
+            "y": 1215
+        },
+        "hatchButton": {
+            "x": 50,
+            "y": 925
+        },
+        "hatchFreeButton": {
+            "x": 360,
+            "y": 1035
+        },
+        "hatchCrossButton": {
+            "x": 670,
+            "y": 35
+        },
+        "worldButton": {
+            "x": 650,
+            "y": 1215
+        },
+        "leafCutterSupplyButton": {
+            "x": 360,
+            "y": 830
+        },
+        "feedingGround": {
+            "x": 45,
+            "y": 765
+        },
+        "feedingGroundSupplyIcon": {
+            "x": 390,
+            "y": 900
+        },
+        "feedingGroundSupplyButton": {
+            "x": 360,
+            "y": 915
+        },
+        "exoticPeaReward": {
+            "x": 485,
+            "y": 1010
+        },
+        "exoticPeaRewardClaimButton": {
+            "x": 360,
+            "y": 1230
+        },
+        "allianceSalaryButton": {
+            "x": 440,
+            "y": 770
+        },
+        "allianceSalaryActiveButton": {
+            "x": 115,
+            "y": 335
+        },
+        "allianceSalaryAttendanceButton": {
+            "x": 360,
+            "y": 335
+        },
+        "allianceSalaryContributionButton": {
+            "x": 595,
+            "y": 335
+        },
+        "mailButton": {
+            "x": 270,
+            "y": 1220
+        },
+        "mailMarkAsReadButton": {
+            "x": 280,
+            "y": 1220
+        },
+        "messagesButtonColorPick": {
+            "x": 25,
+            "y": 120
+        },
+        "searchWildCreaturesButton": {
+            "x": 125,
+            "y": 1225
+        },
+        "searchResourceTilesButton": {
+            "x": 360,
+            "y": 1225
+        },
+        "searchCoordsButton": {
+            "x": 595,
+            "y": 1225
+        },
+        "searchCoordXField": {
+            "x": 215,
+            "y": 1075
+        },
+        "searchCoordYField": {
+            "x": 500,
+            "y": 1075
+        },
+        "searchCoordsGoButton": {
+            "x": 610,
+            "y": 1075
+        },
+        "visitAnotherAllianceAnthillIcon": {
+            "x": 270,
+            "y": 800
+        }
+    },
+    "swipes": {
+        "swipeMarchScreen": {
+            "x1": 360,
+            "y1": 1000,
+            "x2": 360,
+            "y2": 300
+        },
+        "swipeAllianceMembers": {
+            "x1": 360,
+            "y1": 1000,
+            "x2": 360,
+            "y2": 500
+        },
+        "swipePackShopHeading": {
+            "x1": 70,
+            "y1": 175,
+            "x2": 650,
+            "y2": 175
+        },
+        "swipePackShopContent": {
+            "x1": 360,
+            "y1": 1200,
+            "x2": 360,
+            "y2": 300
+        },
+        "swipeHatchScreen": {
+            "x1": 520,
+            "y1": 640,
+            "x2": 200,
+            "y2": 640
+        }
+    },
+    "allianceEvolutions": {
+        "develop": "one",
+        "combat": "two"
+    },
+    "allianceEvolutionsPositions": {
+        "one": [
+            {
+                "x": 360,
+                "y": 350
+            }
+        ],
+        "two": [
+            {
+                "x": 195,
+                "y": 350
+            },
+            {
+                "x": 525,
+                "y": 350
+            }
+        ],
+        "three": [
+            {
+                "x": 190,
+                "y": 350
+            },
+            {
+                "x": 360,
+                "y": 350
+            },
+            {
+                "x": 525,
+                "y": 350
+            }
+        ],
+        "four": [
+            {
+                "x": 105,
+                "y": 350
+            },
+            {
+                "x": 275,
+                "y": 350
+            },
+            {
+                "x": 445,
+                "y": 350
+            },
+            {
+                "x": 610,
+                "y": 350
+            }
+        ]
+    },
+    "leafCutterPositions": [
+        {
+            "x": 105,
+            "y": 465,
+            "x1": 500,
+            "y1": 590
+        },
+        {
+            "x": 300,
+            "y": 555,
+            "x1": 500,
+            "y1": 680
+        },
+        {
+            "x": 235,
+            "y": 560,
+            "x1": 500,
+            "y1": 680
+        }
+    ],
+    "allianceSalaryActiveRewardsPositions": [
+        {
+            "x": 110,
+            "y": 620
+        },
+        {
+            "x": 190,
+            "y": 490
+        },
+        {
+            "x": 270,
+            "y": 620
+        },
+        {
+            "x": 345,
+            "y": 490
+        },
+        {
+            "x": 425,
+            "y": 620
+        },
+        {
+            "x": 505,
+            "y": 490
+        },
+        {
+            "x": 585,
+            "y": 620
+        },
+        {
+            "x": 660,
+            "y": 490
+        }
+    ],
+    "allianceSalaryAttendanceRewardsPositions": [
+        {
+            "x": 45,
+            "y": 540
+        },
+        {
+            "x": 430,
+            "y": 540
+        },
+        {
+            "x": 680,
+            "y": 540
+        }
+    ],
+    "allianceSalaryContributionRewardsPositions": [
+        {
+            "x": 250,
+            "y": 540
+        },
+        {
+            "x": 680,
+            "y": 540
+        }
+    ],
+    "mailBoxesPositionsY": [
+        150,
+        265,
+        385,
+        500,
+        615,
+        730,
+        935,
+        1020
+    ],
+    "waterExoticPeasByHillsPositions": [
+        {
+            "X": 519,
+            "Y": 551
+        },
+        {
+            "X": 520,
+            "Y": 556
+        },
+        {
+            "X": 515,
+            "Y": 551
+        }
+    ]
+}
