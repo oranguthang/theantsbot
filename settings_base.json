@@ -1,18 +1,98 @@
 {
     "enabled": true,
-    "strategyNum": 4,
-    "huntAsyncRun": true,
-    "huntPoolSize": 2,
-    "minStamina": 20,
+    "debug": false,
+    "strategyNum": 1,
+    "huntPoolSize": 4,
+    "minStamina": 30,
     "sleepShort": 1,
     "sleepMedium": 2,
     "sleepLong": 30,
+    "trialsToFindResourceTile": 15,
+    "allianceMembersBarHeight": 75,
     "marchScreenTopBarHeight": 410,
     "marchUnitHeight": 315,
     "screenHeight": 1280,
     "screenWidth": 720,
-    "allianceMembersBarHeight": 75,
     "serverNumber": "571",
+    "disabledFarms": [2,3,4,5],
+    "devices": [
+        "localhost:5555",
+        "localhost:5565",
+        "localhost:5615",
+        "localhost:5625",
+        "localhost:5575",
+        "localhost:5635",
+        "localhost:5645",
+        "localhost:5655"
+    ],
+    "farmHuntingConfig": {
+        "1": {
+            "type": "soil",
+            "level": 15
+        },
+        "2": {
+            "type": "soil",
+            "level": 15
+        },
+        "3": {
+            "type": "soil",
+            "level": 15
+        },
+        "4": {
+            "type": "soil",
+            "level": 15
+        },
+        "5": {
+            "type": "soil",
+            "level": 15
+        },
+        "6": {
+            "type": "soil",
+            "level": 15
+        },
+        "7": {
+            "type": "soil",
+            "level": 15
+        },
+        "8": {
+            "type": "soil",
+            "level": 15
+        }
+    },
+    "farmGatheringConfig": {
+        "1": {
+            "type": "soil",
+            "level": 6
+        },
+        "2": {
+            "type": "soil",
+            "level": 6
+        },
+        "3": {
+            "type": "soil",
+            "level": 6
+        },
+        "4": {
+            "type": "soil",
+            "level": 6
+        },
+        "5": {
+            "type": "soil",
+            "level": 6
+        },
+        "6": {
+            "type": "soil",
+            "level": 6
+        },
+        "7": {
+            "type": "soil",
+            "level": 6
+        },
+        "8": {
+            "type": "soil",
+            "level": 6
+        }
+    },
     "strategies": {
         "1": [
             "morning",
@@ -23,12 +103,6 @@
         "2": [
             "hunt",
             "gather",
-            "evening"
-        ],
-        "3": [
-            "hunt"
-        ],
-        "4": [
             "evening"
         ]
     },
@@ -61,21 +135,13 @@
             "x": 450,
             "y": 1210
         },
-        "marchUnitHeading": {
-            "x": 0,
-            "y": 0,
-            "h": 90,
-            "w": 720
-        },
-        "marchUnitHeadingColorPick": {
+        "marchUnitsHeadingColorPick": {
             "x": 700,
             "y": 75
         },
-        "marchUnits": {
-            "x": 85,
-            "y": 180,
-            "h": 40,
-            "w": 80
+        "marchUnitBackOkButton": {
+            "x": 360,
+            "y": 765
         },
         "allianceButton": {
             "x": 500,
@@ -101,6 +167,10 @@
             "x": 360,
             "y": 970
         },
+        "allianceEvolutionDonateResourceButtonColorPick": {
+            "x": 360,
+            "y": 970
+        },
         "allianceEvolutionDonateDiamondButton": {
             "x": 565,
             "y": 970
@@ -108,24 +178,6 @@
         "allianceMembersR1Button": {
             "x": 680,
             "y": 910
-        },
-        "allianceMembersBox": {
-            "x": 140,
-            "y": 430,
-            "h": 700,
-            "w": 400
-        },
-        "allianceMemberProfileBottomBar": {
-            "x": 0,
-            "y": 1110,
-            "h": 170,
-            "w": 720
-        },
-        "allianceEvolutionTopBar": {
-            "x": 0,
-            "y": 235,
-            "h": 300,
-            "w": 720
         },
         "findExoticPeaButton": {
             "x": 50,
@@ -266,6 +318,80 @@
         "visitAnotherAllianceAnthillIcon": {
             "x": 270,
             "y": 800
+        },
+        "gatherResourceTileIcon": {
+            "x": 420,
+            "y": 745
+        },
+        "huntGatherScreenFirstIcon": {
+            "x": 123,
+            "y": 930
+        },
+        "huntGatherScreenSecondIcon": {
+            "x": 360,
+            "y": 930
+        },
+        "huntGatherScreenThirdIcon": {
+            "x": 630,
+            "y": 930
+        },
+        "searchMinusLevelButton": {
+            "x": 60,
+            "y": 1100
+        },
+        "searchPlusLevelButton": {
+            "x": 480,
+            "y": 1100
+        }
+    },
+    "rectangles": {
+        "marchUnitsHeading": {
+            "x": 0,
+            "y": 0,
+            "h": 90,
+            "w": 720
+        },
+        "marchUnitsCount": {
+            "x": 85,
+            "y": 180,
+            "h": 40,
+            "w": 80
+        },
+        "marchUnitsStamina": {
+            "x": 400,
+            "y": 400,
+            "h": 735,
+            "w": 175
+        },
+        "allianceMembersBox": {
+            "x": 140,
+            "y": 430,
+            "h": 700,
+            "w": 400
+        },
+        "allianceMemberProfileBottomBar": {
+            "x": 0,
+            "y": 1110,
+            "h": 170,
+            "w": 720
+        },
+        "allianceEvolutionTopBar": {
+            "x": 0,
+            "y": 235,
+            "h": 300,
+            "w": 720
+        },
+        "marchUnitsDutiesBar": {
+            "x": 0,
+            "y": 245,
+            "h": 295,
+            "w": 295
+        },
+        "resourceTileDataWindow": {
+            "x": 360,
+            "y": 295,
+            "h": 75,
+            "w": 170
         }
     },
     "swipes": {
@@ -298,6 +424,18 @@
             "y1": 640,
             "x2": 200,
             "y2": 640
+        },
+        "swipeBackHuntGatherScreen": {
+            "x1": 125,
+            "y1": 930,
+            "x2": 600,
+            "y2": 930
+        },
+        "swipeHuntGatherScreen": {
+            "x1": 600,
+            "y1": 930,
+            "x2": 125,
+            "y2": 930
         }
     },
     "allianceEvolutions": {

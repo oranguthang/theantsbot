@@ -4,7 +4,7 @@ from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
 from src.exceptions import UserWateringCompleted
 from src.logger import logger
 from src.settings import Settings
-from src.utils import ExtractText, ImageHandler
+from src.utils import THRESHOLD_DIVIDER
 
 
 class WateringBot(TheAntsBot):
@@ -69,7 +69,6 @@ class WateringBot(TheAntsBot):
         if not Settings.check_enabled(settings):
             return
 
-        divider = 2.5
         watered_users = set()
 
         found_new_user = True
@@ -93,16 +92,7 @@ class WateringBot(TheAntsBot):
                 found_new_current_user = True
                 while found_new_current_user:
                     found_new_current_user = False
-                    image = self.get_screenshot()
-                    members = ImageHandler.crop_image(
-                        image,
-                        settings["positions"]["allianceMembersBox"]["x"],
-                        settings["positions"]["allianceMembersBox"]["y"],
-                        settings["positions"]["allianceMembersBox"]["h"],
-                        settings["positions"]["allianceMembersBox"]["w"]
-                    )
-                    image_threshold = ImageHandler.threshold(members)
-                    boxes = ExtractText.image_to_boxes(image_threshold)
+                    boxes = self.get_text_boxes_from_screenshot(settings=settings, rectangle_name="allianceMembersBox")
                     for x, y, text in boxes:
                         text_lower = text.lower()
                         if settings["serverNumber"] in text_lower and text_lower not in current_users:
@@ -113,33 +103,28 @@ class WateringBot(TheAntsBot):
                             found_new_user = True
                             # Click nickname
                             self.press_location(
-                                x / divider + settings["positions"]["allianceMembersBox"]["x"],
-                                y / divider + settings["positions"]["allianceMembersBox"]["y"]
+                                x / THRESHOLD_DIVIDER + settings["positions"]["allianceMembersBox"]["x"],
+                                y / THRESHOLD_DIVIDER + settings["positions"]["allianceMembersBox"]["y"]
                             )
                             sleep(settings[SLEEP_MEDIUM])
                             # Scan profile bottom bar
-                            image = self.get_screenshot()
-                            bottom_bar = ImageHandler.crop_image(
-                                image,
-                                settings["positions"]["allianceMemberProfileBottomBar"]["x"],
-                                settings["positions"]["allianceMemberProfileBottomBar"]["y"],
-                                settings["positions"]["allianceMemberProfileBottomBar"]["h"],
-                                settings["positions"]["allianceMemberProfileBottomBar"]["w"]
-                            )
-                            image_threshold = ImageHandler.threshold(bottom_bar)
-                            profile_actions = ExtractText.image_to_boxes(
-                                image_threshold,
+                            profile_actions = self.get_text_boxes_from_screenshot(
+                                settings=settings, rectangle_name="allianceMemberProfileBottomBar",
                                 char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
                             )
                             for x1, y1, action_text in profile_actions:
                                 if "visit" in action_text.lower():
                                     # Click Visit button
                                     self.press_location(
-                                        x1 / divider + settings["positions"]["allianceMemberProfileBottomBar"]["x"],
-                                        y1 / divider + settings["positions"]["allianceMemberProfileBottomBar"]["y"]
+                                        x1 / THRESHOLD_DIVIDER +
+                                        settings["positions"]["allianceMemberProfileBottomBar"]["x"],
+                                        y1 / THRESHOLD_DIVIDER +
+                                        settings["positions"]["allianceMemberProfileBottomBar"]["y"]
                                     )
                                     sleep(settings[SLEEP_MEDIUM] * 1.5)
 
+                                    # TODO: Check for exotic pea button
+                                    # TODO: Skip in all farms if exotic pea is fully watered
                                     self.press_find_exotic_pea_button(settings)
                                     self.press_water_exotic_pea_button(settings)
                                     self.press_return_from_anthill_button(settings)

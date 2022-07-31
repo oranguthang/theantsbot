@@ -1,4 +1,5 @@
-from multiprocessing import Pool
+import os
+from multiprocessing import Pool, Lock
 
 import numpy as np
 import psutil
@@ -17,30 +18,27 @@ CORE_NUMBER = 4
 
 ADB_PATH = "C:\\Android\\adb.exe"
 
-DEVICES_LIST = [
-    ("Farm 1", "localhost", 5555),
-    ("Farm 2", "localhost", 5565),
-    ("Farm 3", "localhost", 5615),
-    ("Farm 4", "localhost", 5625),
-    ("Farm 5", "localhost", 5575),
-    ("Farm 6", "localhost", 5635),
-    ("Farm 7", "localhost", 5645),
-    ("Farm 8", "localhost", 5655),
-]
+
+def init_lock(lock_obj):
+    global lock
+    lock = lock_obj
 
 
-if __name__ == "__main__":
+def main():
     # Check if adb server is running
     if "adb.exe" not in (p.name() for p in psutil.process_iter()):
-        adb = subprocess.Popen([ADB_PATH, "devices"])
+        subprocess.Popen([ADB_PATH, "devices"])
         sleep(15)  # Wait for 15 secs
-
-    device_handler = DeviceHandler(DEVICES_LIST)
-    device_handler.connect_devices()
-    current_devices = device_handler.get_devices()
 
     settings = Settings.load_settings()
     if Settings.check_enabled(settings):
+        if settings["debug"]:
+            os.makedirs("screenshots", exist_ok=True)
+
+        device_handler = DeviceHandler(settings["devices"])
+        device_handler.connect_devices()
+        current_devices = device_handler.get_devices(skip_devices=settings["disabledFarms"])
+
         strategy_num = settings["strategyNum"]
         for action in settings["strategies"][str(strategy_num)]:
             if action == Action.ACTION_WATER:
@@ -70,7 +68,12 @@ if __name__ == "__main__":
                         pool.map(bot_class.run_bots, np.array_split(list_of_bots, pool_size))
             else:
                 pool_size = len(list_of_bots)
-                with Pool(pool_size) as pool:
+                lock_obj = Lock()
+                with Pool(pool_size, initializer=init_lock, initargs=(lock_obj,)) as pool:
                     pool.map(bot_class.run, list_of_bots)
 
         logger.info("The job is done! See you soon!")
+
+
+if __name__ == "__main__":
+    main()

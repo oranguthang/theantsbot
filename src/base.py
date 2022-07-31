@@ -2,6 +2,7 @@ from time import sleep
 from ppadb.client import Client
 
 from src.logger import logger
+from src.utils import ExtractText, ImageHandler
 
 SLEEP_SHORT = "sleepShort"
 SLEEP_MEDIUM = "sleepMedium"
@@ -18,21 +19,26 @@ class Action:
 
 class DeviceHandler:
     def __init__(self, devices_hosts):
-        self.devices_hosts = devices_hosts
+        self.devices_hosts = [device.split(":") for device in devices_hosts]
         self.client = Client(host="127.0.0.1", port=5037)
         logger.info(f"Client version: {self.client.version()}")
 
     def connect_devices(self):
-        for name, host, port in self.devices_hosts:
-            self.client.remote_connect(host, port)
+        for host, port in self.devices_hosts:
+            self.client.remote_connect(host, int(port))
             self.client.device(f"{host}:{port}")
 
-    def get_devices(self):
+    def get_devices(self, skip_devices=()):
         connected_devices = []
-        for name, host, port in self.devices_hosts:
+        for idx, (host, port) in enumerate(self.devices_hosts):
             try:
                 device = self.client.device(f"{host}:{port}")
                 if device:
+                    number = idx + 1
+                    if number in skip_devices:
+                        continue
+                    device.number = number
+                    name = f"Farm {number}"
                     device.name = name
                     logger.info(f"Connected device {name} {host}:{port}")
                     connected_devices.append(device)
@@ -52,10 +58,50 @@ class TheAntsBot:
     def __init__(self, device):
         self.device = device
 
-    def get_screenshot(self):
+    def get_screenshot(self, settings=None, rectangle_name=None):
         image = self.device.screencap()
         logger.debug("Successfully get screenshot")
+
+        if settings and rectangle_name:
+            image = ImageHandler.crop_image(
+                image,
+                settings["rectangles"][rectangle_name]["x"],
+                settings["rectangles"][rectangle_name]["y"],
+                settings["rectangles"][rectangle_name]["h"],
+                settings["rectangles"][rectangle_name]["w"]
+            )
+
+        debug = settings["debug"] if settings else False
+        if debug:
+            ImageHandler.save_to_file(image)
+
         return image
+
+    def get_text_from_screenshot(self, image=None, settings=None, rectangle_name=None, char_whitelist=None):
+        if image is None:
+            image = self.get_screenshot(settings, rectangle_name)
+        debug = settings["debug"] if settings else False
+        image_threshold = ImageHandler.threshold(image, debug=debug)
+        text = ExtractText.image_to_string(image_threshold, char_whitelist=char_whitelist)
+        return text
+
+    def get_text_boxes_from_screenshot(self, image=None, settings=None, rectangle_name=None, char_whitelist=None):
+        if image is None:
+            image = self.get_screenshot(settings, rectangle_name)
+        debug = settings["debug"] if settings else False
+        image_threshold = ImageHandler.threshold(image, debug=debug)
+        boxes = ExtractText.image_to_boxes(image_threshold, char_whitelist=char_whitelist)
+        return boxes
+
+    def check_pixel_color(self, image, settings, position_name, color):
+        if image is None:
+            image = self.get_screenshot(settings)
+        return ImageHandler.check_pixel_color(
+            image,
+            settings["positions"][position_name]["x"],
+            settings["positions"][position_name]["y"],
+            color
+        )
 
     def type_text(self, text):
         self.device.shell(f'input text "{text}"')

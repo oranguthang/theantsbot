@@ -4,7 +4,7 @@ from time import sleep
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM, SLEEP_LONG
 from src.logger import logger
 from src.settings import Settings
-from src.utils import ExtractText, ImageHandler
+from src.utils import THRESHOLD_DIVIDER, Colors
 
 
 class MorningBonusesCollectingBot(TheAntsBot):
@@ -166,25 +166,15 @@ class MorningBonusesCollectingBot(TheAntsBot):
 
     def process_evolutions(self, settings, donate_resources=True, donate_diamonds=True):
         # Not working properly
-        divider = 2.5
-
-        image = self.get_screenshot()
-        members = ImageHandler.crop_image(
-            image,
-            settings["positions"]["allianceEvolutionTopBar"]["x"],
-            settings["positions"]["allianceEvolutionTopBar"]["y"],
-            settings["positions"]["allianceEvolutionTopBar"]["h"],
-            settings["positions"]["allianceEvolutionTopBar"]["w"]
-        )
-        image_threshold = ImageHandler.threshold(members)
-        boxes = ExtractText.image_to_boxes(image_threshold, char_whitelist="0123456789/")
+        boxes = self.get_text_boxes_from_screenshot(settings=settings, rectangle_name="marchUnits",
+                                                    char_whitelist="0123456789/")
         for x, y, text in boxes:
             filtered_value = re.findall(r"(\d*/\d*)", text)
             if filtered_value:
                 # Found an evolution block
                 self.press_location(
-                    x / divider + settings["positions"]["allianceEvolutionTopBar"]["x"],
-                    y / divider + settings["positions"]["allianceEvolutionTopBar"]["y"]
+                    x / THRESHOLD_DIVIDER + settings["positions"]["allianceEvolutionTopBar"]["x"],
+                    y / THRESHOLD_DIVIDER + settings["positions"]["allianceEvolutionTopBar"]["y"]
                 )
                 sleep(settings[SLEEP_MEDIUM])
 
@@ -209,6 +199,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
             )
             sleep(settings[SLEEP_MEDIUM])
 
+            # TODO: Change to color pick
             if donate_resources:
                 for _ in range(25):
                     self.press_alliance_evolution_donate_resources_button(settings)
@@ -328,12 +319,10 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
             self.press_mail_mark_as_read_button(settings)
             self.press_back_button(settings)
 
-            image = self.get_screenshot()
+            image = self.get_screenshot(settings)
             # Make sure that we returned to mail root
-            returned_to_mail = ImageHandler.check_pixel_is_blue(
-                image,
-                settings["positions"]["messagesButtonColorPick"]["x"],
-                settings["positions"]["messagesButtonColorPick"]["y"]
+            returned_to_mail = self.check_pixel_color(
+                image, settings, "messagesButtonColorPick", Colors.BLUE
             )
             if not returned_to_mail:
                 # If we claimed a reward from mail, we need to press back button again
