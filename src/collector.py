@@ -1,10 +1,11 @@
 import re
 from time import sleep
 
+from models.task_icons.model import TaskIconTypes
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM, SLEEP_LONG
 from src.logger import logger
 from src.settings import Settings
-from src.utils import THRESHOLD_DIVIDER, Colors
+from src.utils import THRESHOLD_DIVIDER, Colors, ImageHandler
 
 
 class MorningBonusesCollectingBot(TheAntsBot):
@@ -79,6 +80,37 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def swipe_hatch_screen(self, settings, sleep_duration=SLEEP_SHORT):
         self.swipe(settings, "swipeHatchScreen", duration_ms=500)
         sleep(settings[sleep_duration])
+
+    def do_duel_of_queens(self, settings):
+        self.press_position(settings, "duelOfQueensBar", sleep_duration=SLEEP_SHORT)
+
+        for _ in range(10):
+            self.press_position(settings, "duelOfQueensChallengeButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "duelOfQueensFirstOpponentButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "duelOfQueensDepartButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "duelOfQueensSkipButton", sleep_duration=SLEEP_SHORT)
+            self.press_back_button(settings)
+
+        self.press_back_button(settings)
+        self.press_back_button(settings)
+
+    def do_tasks(self, settings, icons_model):
+        image = self.get_screenshot(settings, "anthillTasksIconsBar")
+        image = ImageHandler.decode_image(image)
+        circles = ImageHandler.get_circles(
+            image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
+            hough_param1=50, hough_param2=50, min_radius=20, max_radius=40
+        )
+        for circle in circles:
+            x, y, image = circle["x"], circle["y"], circle["image"]
+            predicted = icons_model.predict(image)
+            if predicted[0] == TaskIconTypes.DUEL_OF_QUEENS:
+                self.press_location(
+                    x + settings["rectangles"]["anthillTasksIconsBar"]["x"],
+                    y + settings["rectangles"]["anthillTasksIconsBar"]["y"],
+                )
+                sleep(settings[SLEEP_SHORT])
+                self.do_duel_of_queens(settings)
 
     def fill_leaf_cutters(self, settings):
         cutters_positions = settings["leafCutterPositions"]
@@ -227,22 +259,23 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.press_back_button(settings)
         self.press_back_button(settings)
 
-    def do_collect(self):
+    def do_collect(self, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
             return
 
+        self.do_tasks(settings, shared["models"]["task_icons"])
         self.fill_leaf_cutters(settings)
         self.fill_feeding_ground(settings)
         self.get_bonuses(settings)
         self.hatch_special_ants(settings)
         self.donate_to_evolution(settings)
 
-    def run(self):
+    def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
 
-        self.do_collect()
+        self.do_collect(shared)
 
 
 class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
@@ -330,12 +363,13 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
 
         self.press_back_button(settings)
 
-    def do_collect(self):
+    def do_collect(self, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
             return
 
+        self.do_tasks(settings, shared["models"]["task_icons"])
         self.fill_leaf_cutters(settings)
         self.fill_feeding_ground(settings)
         self.donate_to_evolution(settings, donate_diamonds=False)
@@ -343,7 +377,30 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
         self.claim_rewards(settings)
         self.read_mail(settings)
 
-    def run(self):
+    def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
 
-        self.do_collect()
+        self.do_collect(shared)
+
+
+class CollectingBot(EveningBonusesCollectingBot):
+    def do_collect(self, shared):
+        settings = Settings.load_settings()
+
+        if not Settings.check_enabled(settings):
+            return
+
+        self.do_tasks(settings, shared["models"]["task_icons"])
+        self.fill_leaf_cutters(settings)
+        self.fill_feeding_ground(settings)
+        self.hatch_special_ants(settings)
+        self.get_bonuses(settings)
+        self.donate_to_evolution(settings)
+        self.claim_exotic_pea(settings)
+        self.claim_rewards(settings)
+        self.read_mail(settings)
+
+    def run(self, shared):
+        logger.info(f"Ready to run the collecting bot on {self.device.name}")
+
+        self.do_collect(shared)

@@ -10,6 +10,7 @@ SLEEP_LONG = "sleepLong"
 
 
 class Action:
+    ACTION_COLLECTING = "collecting"
     ACTION_MORNING = "morning"
     ACTION_WATER = "water"
     ACTION_HUNT = "hunt"
@@ -141,6 +142,8 @@ class TheAntsBot:
 
     def press_alliance_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "allianceButton", sleep_duration)
+        self.press_position(settings, "allianceLessActiveDontShowAgainCheck", sleep_duration=SLEEP_SHORT)
+        self.press_position(settings, "allianceLessActiveCancelButton", sleep_duration=SLEEP_SHORT)
 
     def press_world_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "worldButton", sleep_duration, multiplier=4)
@@ -166,5 +169,5 @@ class TheAntsBot:
     def press_march_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "marchButton", sleep_duration)
 
-    def run(self):
+    def run(self, shared):
         raise NotImplementedError("This method should be implemented")

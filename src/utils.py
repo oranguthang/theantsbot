@@ -113,3 +113,47 @@ class ImageHandler:
 
         img_cropped = image[y:y + h, x:x + w]
         return img_cropped
+
+    @staticmethod
+    def get_circles(image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
+                    hough_param1=50, hough_param2=50, min_radius=20, max_radius=40, new_size=None):
+        img_output = cv2.medianBlur(image, output_blur_radius)
+        img_output_gray = cv2.cvtColor(img_output, cv2.COLOR_BGR2GRAY)
+
+        img_hough = cv2.medianBlur(image, hough_blur_radius)
+        img_hough_gray = cv2.cvtColor(img_hough, cv2.COLOR_BGR2GRAY)
+
+        circles = cv2.HoughCircles(
+            img_hough_gray,
+            cv2.HOUGH_GRADIENT,
+            dp=1,
+            minDist=min_dist,
+            param1=hough_param1,
+            param2=hough_param2,  # Smaller value -> more false circles
+            minRadius=min_radius,
+            maxRadius=max_radius
+        )
+
+        if circles is None:
+            return []
+
+        circles = np.uint16(np.around(circles))
+        results = []
+        for circle in circles[0, :]:
+            x = circle[0]
+            y = circle[1]
+            r = circle[2]
+            rect_x = x - r
+            rect_y = y - r
+            img_circle = img_output_gray[rect_y:(rect_y + 2 * r), rect_x:(rect_x + 2 * r)]
+
+            if isinstance(new_size, (list, tuple)) and len(new_size) == 2:
+                img_circle = cv2.resize(img_circle, new_size, interpolation=cv2.INTER_AREA)
+
+            results.append({
+                "x": x,
+                "y": y,
+                "image": img_circle,
+            })
+
+        return results

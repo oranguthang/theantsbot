@@ -1,10 +1,12 @@
+import random
 from time import sleep
 
+from models.task_icons.model import TaskIconTypes
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
 from src.exceptions import UserWateringCompleted
 from src.logger import logger
 from src.settings import Settings
-from src.utils import THRESHOLD_DIVIDER
+from src.utils import THRESHOLD_DIVIDER, ImageHandler
 
 
 class WateringBot(TheAntsBot):
@@ -24,6 +26,7 @@ class WateringBot(TheAntsBot):
         self.press_position(settings, "visitAnotherAllianceAnthillIcon", sleep_duration)
 
     def do_water_by_coordinates(self):
+        # TODO: Not working properly
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
@@ -63,13 +66,13 @@ class WateringBot(TheAntsBot):
 
         self.press_world_button(settings)
 
-    def do_water_in_alliance(self):
+    def do_water_in_alliance(self, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
             return
 
-        watered_users = set()
+        icons_model = shared["models"]["task_icons"]
 
         found_new_user = True
         while found_new_user:
@@ -98,13 +101,19 @@ class WateringBot(TheAntsBot):
                         if settings["serverNumber"] in text_lower and text_lower not in current_users:
                             current_users.add(text_lower)
                             found_new_current_user = True
-                        if settings["serverNumber"] in text_lower and text_lower not in watered_users:
-                            watered_users.add(text_lower)
+
+                            if text_lower not in shared["watered_users"]:
+                                shared["watered_users"][text_lower] = 0
+
+                            if shared["watered_users"][text_lower] >= 5:
+                                continue
+
+                            shared["watered_users"][text_lower] += 1
                             found_new_user = True
                             # Click nickname
                             self.press_location(
-                                x / THRESHOLD_DIVIDER + settings["positions"]["allianceMembersBox"]["x"],
-                                y / THRESHOLD_DIVIDER + settings["positions"]["allianceMembersBox"]["y"]
+                                x / THRESHOLD_DIVIDER + settings["rectangles"]["allianceMembersBox"]["x"],
+                                y / THRESHOLD_DIVIDER + settings["rectangles"]["allianceMembersBox"]["y"]
                             )
                             sleep(settings[SLEEP_MEDIUM])
                             # Scan profile bottom bar
@@ -117,16 +126,27 @@ class WateringBot(TheAntsBot):
                                     # Click Visit button
                                     self.press_location(
                                         x1 / THRESHOLD_DIVIDER +
-                                        settings["positions"]["allianceMemberProfileBottomBar"]["x"],
+                                        settings["rectangles"]["allianceMemberProfileBottomBar"]["x"],
                                         y1 / THRESHOLD_DIVIDER +
-                                        settings["positions"]["allianceMemberProfileBottomBar"]["y"]
+                                        settings["rectangles"]["allianceMemberProfileBottomBar"]["y"]
                                     )
                                     sleep(settings[SLEEP_MEDIUM] * 1.5)
 
-                                    # TODO: Check for exotic pea button
-                                    # TODO: Skip in all farms if exotic pea is fully watered
-                                    self.press_find_exotic_pea_button(settings)
-                                    self.press_water_exotic_pea_button(settings)
+                                    image = self.get_screenshot(settings, "anotherAnthillFindExoticPeaIcon")
+                                    image = ImageHandler.decode_image(image)
+                                    circles = ImageHandler.get_circles(
+                                        image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
+                                        hough_param1=50, hough_param2=50, min_radius=20, max_radius=40
+                                    )
+                                    if len(circles) == 1:
+                                        predicted = icons_model.predict(circles[0]["image"])
+                                        if predicted[0] == TaskIconTypes.FIND_EXOTIC_PEA:
+                                            self.press_find_exotic_pea_button(settings)
+                                            self.press_water_exotic_pea_button(settings)
+                                            shared["watered_users"][text_lower] += 1
+                                    else:
+                                        shared["watered_users"][text_lower] = 5
+
                                     self.press_return_from_anthill_button(settings)
 
                                     raise UserWateringCompleted
@@ -145,11 +165,14 @@ class WateringBot(TheAntsBot):
                 # User successfully watered, continue watering
                 sleep(settings[SLEEP_MEDIUM] * 1.5)
 
-        logger.info(f"Users, watered by {self.device.name}: {', '.join(watered_users)}")
         self.press_back_button(settings)
 
-    def run(self):
+    def run(self, shared):
         logger.info(f"Ready to run the watering bot on {self.device.name}")
 
-        self.do_water_by_coordinates()
-        self.do_water_in_alliance()
+        sleep(random.randint(1, 60))
+
+        # self.do_water_by_coordinates()
+        self.do_water_in_alliance(shared)
+
+        logger.info(f"Total watered users: {shared['watered_users']}")

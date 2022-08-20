@@ -33,11 +33,11 @@ class HuntingBot(TheAntsBot):
     def press_attack_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "attackButton", sleep_duration)
 
-    def swipe_back_search_screen(self, settings, sleep_duration=SLEEP_SHORT):
+    def swipe_back_search_screen(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.swipe(settings, "swipeBackHuntGatherScreen", duration_ms=1000)
         sleep(settings[sleep_duration])
 
-    def swipe_search_screen(self, settings, sleep_duration=SLEEP_SHORT):
+    def swipe_search_screen(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.swipe(settings, "swipeHuntGatherScreen", duration_ms=1000)
         sleep(settings[sleep_duration])
 
@@ -210,11 +210,11 @@ class HuntingBot(TheAntsBot):
             # if we got an error or creature is missing, trying to run the loop again
             return
 
-    def run(self):
+    def run(self, shared):
         self.do_hunt()
 
     @staticmethod
-    def run_bots(bots):
+    def run_bots(bots, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):

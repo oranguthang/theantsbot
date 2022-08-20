@@ -68,7 +68,6 @@ class GatheringBot(HuntingBot):
                 break
 
             trials += 1
-            # lock.acquire()
 
             self.press_search_button(settings)
             self.press_search_go_button(settings)
@@ -76,7 +75,6 @@ class GatheringBot(HuntingBot):
 
             is_enough_resources = self.check_resource_count(settings)
             if not is_enough_resources:
-                # lock.release()
                 continue
 
             self.press_gather_resource_tile_icon(settings)
@@ -87,13 +85,10 @@ class GatheringBot(HuntingBot):
                 continue
             except AllUnitsAreBusy:
                 break
-            finally:
-                # lock.release()
-                pass
 
         self.press_world_button(settings)
 
-    def run(self):
+    def run(self, shared):
         logger.info(f"Ready to run the gathering bot on {self.device.name}")
 
         self.do_gather()

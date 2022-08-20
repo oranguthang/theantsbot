@@ -263,6 +263,14 @@
             "x": 360,
             "y": 1230
         },
+        "allianceLessActiveDontShowAgainCheck": {
+            "x": 210,
+            "y": 675
+        },
+        "allianceLessActiveCancelButton": {
+            "x": 515,
+            "y": 775
+        },
         "allianceSalaryButton": {
             "x": 440,
             "y": 770
@@ -342,6 +350,26 @@
         "searchPlusLevelButton": {
             "x": 480,
             "y": 1100
+        },
+        "duelOfQueensBar": {
+            "x": 360,
+            "y": 245
+        },
+        "duelOfQueensChallengeButton": {
+            "x": 535,
+            "y": 1210
+        },
+        "duelOfQueensFirstOpponentButton": {
+            "x": 585,
+            "y": 410
+        },
+        "duelOfQueensDepartButton": {
+            "x": 360,
+            "y": 1225
+        },
+        "duelOfQueensSkipButton": {
+            "x": 635,
+            "y": 1035
         }
     },
     "rectangles": {
@@ -367,7 +395,7 @@
             "x": 140,
             "y": 430,
             "h": 700,
-            "w": 400
+            "w": 300
         },
         "allianceMemberProfileBottomBar": {
             "x": 0,
@@ -392,6 +420,18 @@
             "y": 295,
             "h": 75,
             "w": 170
+        },
+        "anthillTasksIconsBar": {
+            "x": 0,
+            "y": 980,
+            "h": 110,
+            "w": 360
+        },
+        "anotherAnthillFindExoticPeaIcon": {
+            "x": 0,
+            "y": 1070,
+            "h": 80,
+            "w": 100
         }
     },
     "swipes": {
