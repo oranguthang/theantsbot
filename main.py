@@ -11,7 +11,8 @@ from src.base import DeviceHandler, Action
 from src.gatherer import GatheringBot
 from src.hunter import HuntingBot
 from src.waterer import WateringBot
-from src.collector import MorningBonusesCollectingBot, EveningBonusesCollectingBot, CollectingBot
+from src.collector import (MorningBonusesCollectingBot, EveningBonusesCollectingBot,
+                           CollectingBot, ForceEventBonusesCollectingBot, TasksBot)
 from src.logger import logger
 from src.settings import Settings
 
@@ -58,10 +59,12 @@ def main():
                 bot_class = EveningBonusesCollectingBot
             elif action == Action.ACTION_COLLECTING:
                 bot_class = CollectingBot
+            elif action == Action.ACTION_FORCE_EVENT:
+                bot_class = ForceEventBonusesCollectingBot
+            elif action == Action.ACTION_TASKS:
+                bot_class = TasksBot
             elif action == Action.ACTION_GATHER:
                 bot_class = GatheringBot
-                pool_size = 1
-                sleep(180)  # FIXME: Dirty hack - wait for all troops to return
             else:
                 # Hunting is default class
                 action = Action.ACTION_HUNT

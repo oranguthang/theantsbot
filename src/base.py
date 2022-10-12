@@ -16,6 +16,8 @@ class Action:
     ACTION_HUNT = "hunt"
     ACTION_GATHER = "gather"
     ACTION_EVENING = "evening"
+    ACTION_FORCE_EVENT = "force"
+    ACTION_TASKS = "tasks"
 
 
 class DeviceHandler:
@@ -58,6 +60,7 @@ class DeviceHandler:
 class TheAntsBot:
     def __init__(self, device):
         self.device = device
+        self.closed_less_active_alert = False
 
     def get_screenshot(self, settings=None, rectangle_name=None):
         image = self.device.screencap()
@@ -94,15 +97,18 @@ class TheAntsBot:
         boxes = ExtractText.image_to_boxes(image_threshold, char_whitelist=char_whitelist)
         return boxes
 
-    def check_pixel_color(self, image, settings, position_name, color):
+    def check_pixel_color(self, image, settings, position, color):
         if image is None:
             image = self.get_screenshot(settings)
-        return ImageHandler.check_pixel_color(
-            image,
-            settings["positions"][position_name]["x"],
-            settings["positions"][position_name]["y"],
-            color
-        )
+
+        if isinstance(position, str):
+            x = settings["positions"][position]["x"]
+            y = settings["positions"][position]["y"]
+        else:
+            x = position["x"]
+            y = position["y"]
+
+        return ImageHandler.check_pixel_color(image, x, y, color)
 
     def type_text(self, text):
         self.device.shell(f'input text "{text}"')
@@ -140,13 +146,18 @@ class TheAntsBot:
     def press_back_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "backButton", sleep_duration)
 
+    def press_free_space_bottom(self, settings, sleep_duration=SLEEP_MEDIUM):
+        self.press_position(settings, "freeSpaceBottom", sleep_duration)
+
     def press_alliance_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "allianceButton", sleep_duration)
-        self.press_position(settings, "allianceLessActiveDontShowAgainCheck", sleep_duration=SLEEP_SHORT)
-        self.press_position(settings, "allianceLessActiveCancelButton", sleep_duration=SLEEP_SHORT)
+        if not self.closed_less_active_alert:
+            self.press_position(settings, "allianceLessActiveDontShowAgainCheck", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "allianceLessActiveCancelButton", sleep_duration=SLEEP_SHORT)
+            self.closed_less_active_alert = True
 
     def press_world_button(self, settings, sleep_duration=SLEEP_MEDIUM):
-        self.press_position(settings, "worldButton", sleep_duration, multiplier=4)
+        self.press_position(settings, "worldButton", sleep_duration, multiplier=3)
 
     def press_search_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "searchButton", sleep_duration)

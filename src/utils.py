@@ -105,7 +105,7 @@ class ImageHandler:
             return np.std([b, g, r]) < 4.0
         elif color == Colors.BLUE:
             # if blue channel is more than green and red, the pixel is near blue
-            return b > g and b > r
+            return b > g and b > r and (2 * b - g - r) > 10
 
     @staticmethod
     def crop_image(image, x, y, h, w):

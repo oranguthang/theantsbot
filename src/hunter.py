@@ -60,19 +60,23 @@ class HuntingBot(TheAntsBot):
             config_name = "farmGatheringConfig"
         else:
             config_name = "farmHuntingConfig"
-        config = settings[config_name][str(self.device.number)]
+
+        if settings.get("resourceType") is not None:
+            config = settings
+        else:
+            config = settings[config_name][str(self.device.number)]
 
         for _ in range(3):
             self.swipe_back_search_screen(settings)
 
         # Set type of creature/tile
-        if config["type"] == "meat":
+        if config["resourceType"] == "meat":
             self.press_search_screen_second_icon(settings)
         else:
             self.swipe_search_screen(settings)
-            if config["type"] == "leaf":
+            if config["resourceType"] == "leaf":
                 self.press_search_screen_first_icon(settings)
-            elif config["type"] == "soil":
+            elif config["resourceType"] == "soil":
                 self.press_search_screen_second_icon(settings)
             else:
                 # Sand
@@ -178,7 +182,8 @@ class HuntingBot(TheAntsBot):
         if self.is_first_run:
             self.is_first_run = False
             self.press_world_button(settings)
-            self.recall_march_units(settings)
+            # TODO: Fix with button image recognition
+            # self.recall_march_units(settings)
             self.press_search_button(settings)
             self.press_search_wild_creatures_button(settings)
             self.set_wild_creature_or_resource_tile_type(settings)
@@ -223,6 +228,9 @@ class HuntingBot(TheAntsBot):
         logger.info(f"Ready to run the hunting bot on {', '.join(bot.device.name for bot in bots)}")
 
         for bot in itertools.cycle(bots):
+            if bot.is_finished:
+                continue
+
             try:
                 while True:
                     if bot.is_finished:

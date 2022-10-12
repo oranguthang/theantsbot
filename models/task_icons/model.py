@@ -179,14 +179,14 @@ class TaskIconsModel:
 
         torch.save(self.net.state_dict(), filename)
 
-    def predict(self, image):
+    def predict_single(self, image):
         self.load_network()
 
         image = functional.to_pil_image(image)
         image = self.test_transform(image)
         outputs = self.net(image.unsqueeze(0))
         _, predicted = torch.max(outputs, 1)
-        return predicted
+        return predicted[0]
 
 
 if __name__ == "__main__":

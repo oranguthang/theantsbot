@@ -1,12 +1,10 @@
-import random
 from time import sleep
 
-from models.task_icons.model import TaskIconTypes
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
 from src.exceptions import UserWateringCompleted
 from src.logger import logger
 from src.settings import Settings
-from src.utils import THRESHOLD_DIVIDER, ImageHandler
+from src.utils import THRESHOLD_DIVIDER
 
 
 class WateringBot(TheAntsBot):
@@ -66,27 +64,24 @@ class WateringBot(TheAntsBot):
 
         self.press_world_button(settings)
 
-    def do_water_in_alliance(self, shared):
+    def do_water_in_alliance(self, shared, bar_num):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
             return
-
-        icons_model = shared["models"]["task_icons"]
 
         found_new_user = True
         while found_new_user:
             self.press_alliance_button(settings)
             self.press_alliance_members_button(settings)
 
-            # Unbox R1-R4 bars
-            for i in range(0, 4):
-                self.press_location(
-                    settings["positions"]["allianceMembersR1Button"]["x"],
-                    settings["positions"]["allianceMembersR1Button"]["y"] -
-                    settings["allianceMembersBarHeight"] * i
-                )
-                sleep(settings[SLEEP_SHORT])
+            # Unbox R1-R4 bar
+            self.press_location(
+                settings["positions"]["allianceMembersR1Button"]["x"],
+                settings["positions"]["allianceMembersR1Button"]["y"] -
+                settings["allianceMembersBarHeight"] * bar_num
+            )
+            sleep(settings[SLEEP_SHORT])
 
             # Scan text
             found_new_user = False
@@ -105,7 +100,7 @@ class WateringBot(TheAntsBot):
                             if text_lower not in shared["watered_users"]:
                                 shared["watered_users"][text_lower] = 0
 
-                            if shared["watered_users"][text_lower] >= 5:
+                            if shared["watered_users"][text_lower] >= 7:
                                 continue
 
                             shared["watered_users"][text_lower] += 1
@@ -130,22 +125,26 @@ class WateringBot(TheAntsBot):
                                         y1 / THRESHOLD_DIVIDER +
                                         settings["rectangles"]["allianceMemberProfileBottomBar"]["y"]
                                     )
-                                    sleep(settings[SLEEP_MEDIUM] * 1.5)
+                                    sleep(settings[SLEEP_MEDIUM] * 3)
 
-                                    image = self.get_screenshot(settings, "anotherAnthillFindExoticPeaIcon")
-                                    image = ImageHandler.decode_image(image)
-                                    circles = ImageHandler.get_circles(
-                                        image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
-                                        hough_param1=50, hough_param2=50, min_radius=20, max_radius=40
-                                    )
-                                    if len(circles) == 1:
-                                        predicted = icons_model.predict(circles[0]["image"])
-                                        if predicted[0] == TaskIconTypes.FIND_EXOTIC_PEA:
-                                            self.press_find_exotic_pea_button(settings)
-                                            self.press_water_exotic_pea_button(settings)
-                                            shared["watered_users"][text_lower] += 1
-                                    else:
-                                        shared["watered_users"][text_lower] = 5
+                                    # TODO: Fix watering logic
+                                    # image = self.get_screenshot(settings, "anotherAnthillFindExoticPeaIcon")
+                                    # image = ImageHandler.decode_image(image)
+                                    # circles = ImageHandler.get_circles(
+                                    #     image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
+                                    #     hough_param1=50, hough_param2=50, min_radius=20, max_radius=40
+                                    # )
+                                    # if len(circles) == 1:
+                                    #     predicted = icons_model.predict(circles[0]["image"])
+                                    #     if predicted[0] == TaskIconTypes.FIND_EXOTIC_PEA:
+                                    #         self.press_find_exotic_pea_button(settings)
+                                    #         self.press_water_exotic_pea_button(settings)
+                                    #         shared["watered_users"][text_lower] += 1
+                                    # else:
+                                    #     shared["watered_users"][text_lower] = 5
+                                    self.press_find_exotic_pea_button(settings)
+                                    self.press_water_exotic_pea_button(settings)
+                                    shared["watered_users"][text_lower] += 1
 
                                     self.press_return_from_anthill_button(settings)
 
@@ -159,20 +158,19 @@ class WateringBot(TheAntsBot):
 
                     # Scroll users list
                     self.swipe(settings, "swipeAllianceMembers", duration_ms=1000)
-                    sleep(settings[SLEEP_MEDIUM] * 1.5)
+                    sleep(settings[SLEEP_SHORT])
 
             except UserWateringCompleted:
                 # User successfully watered, continue watering
-                sleep(settings[SLEEP_MEDIUM] * 1.5)
+                sleep(settings[SLEEP_MEDIUM] * 3)
 
         self.press_back_button(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the watering bot on {self.device.name}")
 
-        sleep(random.randint(1, 60))
-
         # self.do_water_by_coordinates()
-        self.do_water_in_alliance(shared)
+        for bar_num in range(4):
+            self.do_water_in_alliance(shared, bar_num)
 
         logger.info(f"Total watered users: {shared['watered_users']}")

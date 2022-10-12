@@ -73,9 +73,10 @@ class GatheringBot(HuntingBot):
             self.press_search_go_button(settings)
             self.press_center_screen(settings)
 
-            is_enough_resources = self.check_resource_count(settings)
-            if not is_enough_resources:
-                continue
+            # TODO: Fix with image recognition
+            # is_enough_resources = self.check_resource_count(settings)
+            # if not is_enough_resources:
+            #     continue
 
             self.press_gather_resource_tile_icon(settings)
 

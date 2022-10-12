@@ -14,7 +14,11 @@
     "screenHeight": 1280,
     "screenWidth": 720,
     "serverNumber": "571",
+    "resourceTileMinAmount": 100000,
+    "resourceType": null,
     "disabledFarms": [2,3,4,5],
+    "duelOfQueensEnabled": true,
+    "duelOfSpecialAntsEnabled": true,
     "devices": [
         "localhost:5555",
         "localhost:5565",
@@ -27,69 +31,69 @@
     ],
     "farmHuntingConfig": {
         "1": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "2": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "3": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "4": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "5": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "6": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "7": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         },
         "8": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 15
         }
     },
     "farmGatheringConfig": {
         "1": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "2": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "3": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "4": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "5": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "6": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "7": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         },
         "8": {
-            "type": "soil",
+            "resourceType": "soil",
             "level": 6
         }
     },
@@ -107,6 +111,10 @@
         ]
     },
     "positions": {
+        "freeSpaceBottom": {
+            "x": 360,
+            "y": 1225
+        },
         "searchButton": {
             "x": 45,
             "y": 840
@@ -168,11 +176,15 @@
             "y": 970
         },
         "allianceEvolutionDonateResourceButtonColorPick": {
-            "x": 360,
+            "x": 305,
             "y": 970
         },
         "allianceEvolutionDonateDiamondButton": {
             "x": 565,
+            "y": 970
+        },
+        "allianceEvolutionDonateDiamondButtonColorPick": {
+            "x": 505,
             "y": 970
         },
         "allianceMembersR1Button": {
@@ -355,6 +367,14 @@
             "x": 360,
             "y": 245
         },
+        "duelOfSpecialAntsBar": {
+            "x": 360,
+            "y": 760
+        },
+        "duelOfQueensFillTroopsConfirmColorPick": {
+            "x": 240,
+            "y": 775
+        },
         "duelOfQueensChallengeButton": {
             "x": 535,
             "y": 1210
@@ -363,6 +383,18 @@
             "x": 585,
             "y": 410
         },
+        "duelOfSpecialAntsFirstOpponentButton": {
+            "x": 585,
+            "y": 360
+        },
+        "duelOfQueensRewardsButton": {
+            "x": 580,
+            "y": 130
+        },
+        "duelOfQueensRewardsClaimButton": {
+            "x": 360,
+            "y": 760
+        },
         "duelOfQueensDepartButton": {
             "x": 360,
             "y": 1225
@@ -370,6 +402,38 @@
         "duelOfQueensSkipButton": {
             "x": 635,
             "y": 1035
+        },
+        "forceEventTasksButton": {
+            "x": 205,
+            "y": 170
+        },
+        "forceEventTransportButton": {
+            "x": 470,
+            "y": 170
+        },
+        "forceEventTaskRewardClaimButton": {
+            "x": 615,
+            "y": 865
+        },
+        "forceEventTaskEmptyField": {
+            "x": 480,
+            "y": 1200
+        },
+        "crystalMineEnterButton": {
+            "x": 595,
+            "y": 1215
+        },
+        "crystalMineRapidOccupyButton": {
+            "x": 665,
+            "y": 960
+        },
+        "crystalMineRapidOccupyConfirmButton": {
+            "x": 195,
+            "y": 755
+        },
+        "crystalMineDepartButton": {
+            "x": 360,
+            "y": 1225
         }
     },
     "rectangles": {
@@ -476,6 +540,12 @@
             "y1": 930,
             "x2": 125,
             "y2": 930
+        },
+        "swipeForceEventRewardsScreen": {
+            "x1": 360,
+            "y1": 760,
+            "x2": 360,
+            "y2": 1275
         }
     },
     "allianceEvolutions": {
@@ -550,6 +620,12 @@
             "y": 560,
             "x1": 500,
             "y1": 680
+        },
+        {
+            "x": 425,
+            "y": 465,
+            "x1": 490,
+            "y1": 590
         }
     ],
     "allianceSalaryActiveRewardsPositions": [
@@ -598,6 +674,30 @@
         {
             "x": 680,
             "y": 540
+        },
+        {
+            "x": 45,
+            "y": 815
+        },
+        {
+            "x": 430,
+            "y": 815
+        },
+        {
+            "x": 680,
+            "y": 815
+        },
+        {
+            "x": 45,
+            "y": 1090
+        },
+        {
+            "x": 430,
+            "y": 1090
+        },
+        {
+            "x": 680,
+            "y": 1090
         }
     ],
     "allianceSalaryContributionRewardsPositions": [
@@ -608,6 +708,32 @@
         {
             "x": 680,
             "y": 540
+        },
+        {
+            "x": 250,
+            "y": 815
+        },
+        {
+            "x": 680,
+            "y": 815
+        },
+        {
+            "x": 250,
+            "y": 1090
+        },
+        {
+            "x": 680,
+            "y": 1090
+        }
+    ],
+    "packShopTimeLimitedOfferProgressRewards": [
+        {
+            "x": 120,
+            "y": 510
+        },
+        {
+            "x": 200,
+            "y": 370
         }
     ],
     "mailBoxesPositionsY": [
@@ -619,6 +745,78 @@
         730,
         935,
         1020
+    ],
+    "forceEventDaysBoxesPositions": [
+        {
+            "x": 75,
+            "y": 665
+        },
+        {
+            "x": 220,
+            "y": 665
+        },
+        {
+            "x": 365,
+            "y": 665
+        },
+        {
+            "x": 505,
+            "y": 665
+        },
+        {
+            "x": 650,
+            "y": 665
+        }
+    ],
+    "forceEventTasksBoxesPositions": [
+        {
+            "x": 115,
+            "y": 725
+        },
+        {
+            "x": 360,
+            "y": 725
+        },
+        {
+            "x": 600,
+            "y": 725
+        }
+    ],
+    "forceEventShellsPositions": [
+        {
+            "x": 95,
+            "y": 535
+        },
+        {
+            "x": 235,
+            "y": 535
+        },
+        {
+            "x": 375,
+            "y": 535
+        },
+        {
+            "x": 515,
+            "y": 535
+        },
+        {
+            "x": 655,
+            "y": 535
+        }
+    ],
+    "crystalMineLevelsPositions": [
+        {
+            "x": 575,
+            "y": 165
+        },
+        {
+            "x": 575,
+            "y": 315
+        },
+        {
+            "x": 575,
+            "y": 465
+        }
     ],
     "waterExoticPeasByHillsPositions": [
         {
