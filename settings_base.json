@@ -3,6 +3,7 @@
     "debug": false,
     "strategyNum": 1,
     "huntPoolSize": 4,
+    "gatherPoolSize": 1,
     "minStamina": 30,
     "sleepShort": 1,
     "sleepMedium": 2,
@@ -14,11 +15,19 @@
     "screenHeight": 1280,
     "screenWidth": 720,
     "serverNumber": "571",
+    "leafCuttersCount": 4,
     "resourceTileMinAmount": 100000,
     "resourceType": null,
     "disabledFarms": [2,3,4,5],
     "duelOfQueensEnabled": true,
     "duelOfSpecialAntsEnabled": true,
+    "findPorts": false,
+    "runBatLoader": false,
+    "batFilePath": "run_farms.bat",
+    "androidPackage": "com.star.union.planetant",
+    "blueStacksConfig": "C:\\ProgramData\\BlueStacks_nxt\\bluestacks.conf",
+    "blueStacksExecutable": "C:\\Program Files\\BlueStacks_nxt\\HD-Player.exe",
+    "adbPath": "C:\\Android\\adb.exe",
     "devices": [
         "localhost:5555",
         "localhost:5565",
@@ -28,6 +37,16 @@
         "localhost:5635",
         "localhost:5645",
         "localhost:5655"
+    ],
+    "deviceNames": [
+        "Nougat64",
+        "Nougat64_2",
+        "Nougat64_3",
+        "Nougat64_4",
+        "Nougat64_5",
+        "Nougat64_6",
+        "Nougat64_7",
+        "Nougat64_8"
     ],
     "farmHuntingConfig": {
         "1": {
@@ -97,6 +116,48 @@
             "level": 6
         }
     },
+    "farmHatchingConfig": {
+        "1": {
+            "plate": 7,
+            "align": "left",
+            "amount": 2000
+        },
+        "2": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "3": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "4": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "5": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "6": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "7": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        },
+        "8": {
+            "plate": 4,
+            "align": "center",
+            "amount": 2000
+        }
+    },
     "strategies": {
         "1": [
             "morning",
@@ -155,9 +216,21 @@
             "x": 500,
             "y": 1230
         },
+        "allianceMainButton": {
+            "x": 115,
+            "y": 125
+        },
         "allianceMembersButton": {
             "x": 360,
             "y": 125
+        },
+        "allianceManageButton": {
+            "x": 605,
+            "y": 125
+        },
+        "allianceRecommendedButton": {
+            "x": 620,
+            "y": 240
         },
         "allianceEvolutionButton": {
             "x": 600,
@@ -235,13 +308,25 @@
             "x": 630,
             "y": 1215
         },
-        "hatchButton": {
+        "packShopFreeSpaceBottom": {
+            "x": 360,
+            "y": 1110
+        },
+        "hatchMenuButton": {
             "x": 50,
             "y": 925
         },
-        "hatchFreeButton": {
+        "hatchSpecialAntButton": {
             "x": 360,
             "y": 1035
+        },
+        "hatchSpecialAntScreenColorPick": {
+            "x": 360,
+            "y": 665
+        },
+        "hatchSpecialAntButtonColorPick": {
+            "x": 80,
+            "y": 895
         },
         "hatchCrossButton": {
             "x": 670,
@@ -267,9 +352,9 @@
             "x": 360,
             "y": 915
         },
-        "exoticPeaReward": {
-            "x": 485,
-            "y": 1010
+        "exoticPeaRewardIcon": {
+            "x": 425,
+            "y": 800
         },
         "exoticPeaRewardClaimButton": {
             "x": 360,
@@ -391,6 +476,14 @@
             "x": 580,
             "y": 130
         },
+        "duelOfQueensRewardsRankingButton": {
+            "x": 360,
+            "y": 115
+        },
+        "duelOfQueensRewardsRankingClaimButton": {
+            "x": 625,
+            "y": 610
+        },
         "duelOfQueensRewardsClaimButton": {
             "x": 360,
             "y": 760
@@ -434,6 +527,90 @@
         "crystalMineDepartButton": {
             "x": 360,
             "y": 1225
+        },
+        "tradeWithLadybugButton": {
+            "x": 535,
+            "y": 760
+        },
+        "hatchInsectsBottomPanelColorPick": {
+            "x": 120,
+            "y": 1200
+        },
+        "hatchInsectsFreeSpaceBottom": {
+            "x": 360,
+            "y": 1260
+        },
+        "hatchInsectsHatchButton": {
+            "x": 360,
+            "y": 1210
+        },
+        "hatchInsectsBreedFodderButton": {
+            "x": 360,
+            "y": 960
+        },
+        "insectHabitat": {
+            "x": 360,
+            "y": 345
+        },
+        "insectHabitatRelativeFromNests": {
+            "x": 255,
+            "y": 745
+        },
+        "insectHabitatInsectsIcon": {
+            "x": 450,
+            "y": 470
+        },
+        "insectHabitatInsectsIconRelativeFromNests": {
+            "x": 445,
+            "y": 900
+        },
+        "caveChallengeClaimRewardButton": {
+            "x": 360,
+            "y": 830
+        },
+        "caveChallengeFreeSpaceBottom": {
+            "x": 360,
+            "y": 1125
+        },
+        "caveChallengeAttackButton": {
+            "x": 360,
+            "y": 1210
+        },
+        "caveChallengeSkipButton": {
+            "x": 635,
+            "y": 1035
+        },
+        "troopCampSoldiersButton": {
+            "x": 480,
+            "y": 900
+        },
+        "troopCampInputAmountField": {
+            "x": 595,
+            "y": 915
+        },
+        "troopCampStartMutationButton": {
+            "x": 525,
+            "y": 1015
+        },
+        "hatchAntsInputAmountField": {
+            "x": 660,
+            "y": 1105
+        },
+        "hatchAntsStartButton": {
+            "x": 540,
+            "y": 1215
+        },
+        "resourceFactoryProcessIcon": {
+            "x": 350,
+            "y": 920
+        },
+        "resourceFactoryProcessButton": {
+            "x": 265,
+            "y": 910
+        },
+        "resourceFactoryOverflowConfirmButton": {
+            "x": 125,
+            "y": 775
         }
     },
     "rectangles": {
@@ -496,6 +673,12 @@
             "y": 1070,
             "h": 80,
             "w": 100
+        },
+        "bannerCrossIcon": {
+            "x": 500,
+            "y": 100,
+            "h": 200,
+            "w": 200
         }
     },
     "swipes": {
@@ -515,6 +698,12 @@
             "x1": 70,
             "y1": 175,
             "x2": 650,
+            "y2": 175
+        },
+        "swipePackShopHeadingRight": {
+            "x1": 610,
+            "y1": 175,
+            "x2": 70,
             "y2": 175
         },
         "swipePackShopContent": {
@@ -546,6 +735,24 @@
             "y1": 760,
             "x2": 360,
             "y2": 1275
+        },
+        "swipeScreenToHatchInsects": {
+            "x1": 360,
+            "y1": 340,
+            "x2": 360,
+            "y2": 900
+        },
+        "swipeCaveChallengeScreenUp": {
+            "x1": 360,
+            "y1": 110,
+            "x2": 360,
+            "y2": 1110
+        },
+        "swipeCaveChallengeScreenDown": {
+            "x1": 360,
+            "y1": 1000,
+            "x2": 360,
+            "y2": 220
         }
     },
     "allianceEvolutions": {
@@ -616,16 +823,108 @@
             "y1": 680
         },
         {
-            "x": 235,
-            "y": 560,
+            "x": 300,
+            "y": 465,
+            "x1": 500,
+            "y1": 590
+        },
+        {
+            "x": 300,
+            "y": 555,
             "x1": 500,
             "y1": 680
         },
         {
-            "x": 425,
+            "x": 365,
+            "y": 370,
+            "x1": 495,
+            "y1": 500
+        },
+        {
+            "x": 300,
             "y": 465,
-            "x1": 490,
+            "x1": 500,
             "y1": 590
+        },
+        {
+            "x": 300,
+            "y": 555,
+            "x1": 500,
+            "y1": 680
+        }
+    ],
+    "termiteFarmsAndInsectNestsPositions": [
+        {
+            "x": 170,
+            "y": 455,
+            "x1": 340,
+            "y1": 455,
+            "x2": 400,
+            "y2": 625
+        },
+        {
+            "x": 215,
+            "y": 455,
+            "x1": 340,
+            "y1": 455,
+            "x2": 400,
+            "y2": 625
+        },
+        {
+            "x": 280,
+            "y": 545,
+            "x1": 335,
+            "y1": 545,
+            "x2": 400,
+            "y2": 710
+        },
+        {
+            "x": 360,
+            "y": 420,
+            "x1": 470,
+            "y1": 535
+        },
+        {
+            "x": 360,
+            "y": 600,
+            "x1": 470,
+            "y1": 715
+        },
+        {
+            "x": 170,
+            "y": 690,
+            "x1": 390,
+            "y1": 805
+        },
+        {
+            "x": 655,
+            "y": 690,
+            "x1": 560,
+            "y1": 805
+        },
+        {
+            "x": 545,
+            "y": 455,
+            "x1": 380,
+            "y1": 455,
+            "x2": 445,
+            "y2": 625
+        },
+        {
+            "x": 505,
+            "y": 455,
+            "x1": 380,
+            "y1": 455,
+            "x2": 445,
+            "y2": 625
+        },
+        {
+            "x": 445,
+            "y": 545,
+            "x1": 385,
+            "y1": 545,
+            "x2": 445,
+            "y2": 715
         }
     ],
     "allianceSalaryActiveRewardsPositions": [
@@ -816,6 +1115,144 @@
         {
             "x": 575,
             "y": 465
+        }
+    ],
+    "packShopMutationPositions": [
+        {
+            "x": 95,
+            "y": 485
+        },
+        {
+            "x": 285,
+            "y": 485
+        },
+        {
+            "x": 460,
+            "y": 485
+        },
+        {
+            "x": 645,
+            "y": 485
+        }
+    ],
+    "caveChallengePlatesPositions": [
+        {
+            "x": 635,
+            "y": 150,
+            "x1": 605,
+            "y1": 300
+        },
+        {
+            "x": 635,
+            "y": 410,
+            "x1": 605,
+            "y1": 560
+        },
+        {
+            "x": 635,
+            "y": 670,
+            "x1": 605,
+            "y1": 820
+        },
+        {
+            "x": 635,
+            "y": 930,
+            "x1": 605,
+            "y1": 1080
+        }
+    ],
+    "hatchNestPositions": [
+        {
+            "x": 675,
+            "y": 825,
+            "x1": 555,
+            "y1": 880
+        },
+        {
+            "x": 365,
+            "y": 980,
+            "x1": 545,
+            "y1": 875
+        },
+        {
+            "x": 555,
+            "y": 710,
+            "x1": 555,
+            "y1": 790
+        }
+    ],
+    "troopCampRelativePath": [
+        {
+            "x": 45,
+            "y": 780
+        },
+        {
+            "x": 100,
+            "y": 825
+        },
+        {
+            "x": 25,
+            "y": 730
+        },
+        {
+            "x": 360,
+            "y": 980
+        }
+    ],
+    "resourceFactoryRelativePath": [
+        {
+            "x": 45,
+            "y": 765
+        },
+        {
+            "x": 455,
+            "y": 1030
+        },
+        {
+            "x": 195,
+            "y": 695
+        },
+        {
+            "x": 270,
+            "y": 980
+        }
+    ],
+    "troopCampPlatesPositions": [
+        {
+            "x": 125,
+            "y": 395
+        },
+        {
+            "x": 360,
+            "y": 395
+        },
+        {
+            "x": 595,
+            "y": 395
+        },
+        {
+            "x": 125,
+            "y": 730
+        },
+        {
+            "x": 360,
+            "y": 730
+        },
+        {
+            "x": 595,
+            "y": 730
+        },
+        {
+            "x": 125,
+            "y": 1065
+        },
+        {
+            "x": 360,
+            "y": 1065
+        },
+        {
+            "x": 595,
+            "y": 1065
         }
     ],
     "waterExoticPeasByHillsPositions": [

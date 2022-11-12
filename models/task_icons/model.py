@@ -28,6 +28,15 @@ class TaskIconTypes:
     SOLDIERS_REFORM = 11
     PATH_TO_BUILDINGS = 12
     WARZONE_CUSTOMIZATION = 13
+    GET_DUEL_OF_QUEENS_REWARD = 14
+
+    @classmethod
+    def size(cls):
+        counter = 0
+        for key in cls.__dict__:
+            if key.isupper():
+                counter += 1
+        return counter
 
 
 class TaskIconsNet(nn.Module):
@@ -63,13 +72,15 @@ class TaskIconsNet(nn.Module):
 
 
 class TaskIconsDataset(Dataset):
-    def __init__(self, root_dir="", csv_file=None, transform=None):
+    def __init__(self, root_dir="", images_dir="", csv_file=None, transform=None):
         """
+        Class, containing basic operations with dataset
         :param root_dir (string): Directory with all the images
         :param csv_file (string): Path to the csv file with annotations
         :param transform (callable): Optional transform to be applied on a sample
         """
         self.root_dir = root_dir
+        self.images_dir = images_dir
         self.transform = transform
         self.icons_data = pd.read_csv(os.path.join(self.root_dir, csv_file))
 
@@ -77,7 +88,7 @@ class TaskIconsDataset(Dataset):
         return len(self.icons_data)
 
     def __getitem__(self, idx):
-        image_name = os.path.join(self.root_dir, self.icons_data.iloc[idx, 0])
+        image_name = os.path.join(self.root_dir, self.images_dir, self.icons_data.iloc[idx, 0])
         image = cv2.imread(image_name)
 
         if self.transform:
@@ -89,39 +100,49 @@ class TaskIconsDataset(Dataset):
 
 
 class TaskIconsModel:
-    def __init__(self, root_dir="", batch_size=4):
-        self.net = TaskIconsNet(num_classes=14)
+    def __init__(self, root_dir="", evaluate=True, batch_size=4):
+        self.net = TaskIconsNet(num_classes=TaskIconTypes.size())
         self.is_net_loaded = False
         self.root_dir = root_dir
 
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.net.parameters(), lr=0.001, momentum=0.9)
 
-        self.train_transform = transforms.Compose([
-            transforms.Resize((32, 32)),
-            transforms.Grayscale(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=0.5, std=0.5),
-        ])
-        self.train_dataset = TaskIconsDataset(
-            root_dir=root_dir,
-            csv_file="train.csv",
-            transform=self.train_transform
-        )
-        self.train_dataloader = DataLoader(self.train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+        if evaluate:
+            self.eval_transform = transforms.Compose([
+                transforms.Resize((32, 32)),
+                transforms.Grayscale(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=0.5, std=0.5),
+            ])
+        else:
+            self.train_transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize((32, 32)),
+                transforms.Grayscale(),
+                transforms.Normalize(mean=0.5, std=0.5),
+            ])
+            self.train_dataset = TaskIconsDataset(
+                root_dir=root_dir,
+                images_dir="train",
+                csv_file="train.csv",
+                transform=self.train_transform
+            )
+            self.train_dataloader = DataLoader(self.train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
-        self.test_transform = transforms.Compose([
-            transforms.Resize((32, 32)),
-            transforms.Grayscale(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=0.5, std=0.5),
-        ])
-        self.test_dataset = TaskIconsDataset(
-            root_dir=root_dir,
-            csv_file="test.csv",
-            transform=self.test_transform
-        )
-        self.test_dataloader = DataLoader(self.test_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+            self.test_transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize((32, 32)),
+                transforms.Grayscale(),
+                transforms.Normalize(mean=0.5, std=0.5),
+            ])
+            self.test_dataset = TaskIconsDataset(
+                root_dir=root_dir,
+                images_dir="test",
+                csv_file="test.csv",
+                transform=self.test_transform
+            )
+            self.test_dataloader = DataLoader(self.test_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
     def train(self, epochs_count):
         print("Train starts")
@@ -183,7 +204,7 @@ class TaskIconsModel:
         self.load_network()
 
         image = functional.to_pil_image(image)
-        image = self.test_transform(image)
+        image = self.eval_transform(image)
         outputs = self.net(image.unsqueeze(0))
         _, predicted = torch.max(outputs, 1)
         return predicted[0]
@@ -196,7 +217,7 @@ if __name__ == "__main__":
     epochs_grid = [2, 5, 10, 15, 20, 25, 30]
 
     for epochs in epochs_grid:
-        model = TaskIconsModel(batch_size=4)
+        model = TaskIconsModel(evaluate=False, batch_size=4)
         model.train(epochs_count=epochs)
         errors = model.test()
 

@@ -22,6 +22,12 @@ class Colors:
     BLACK = "black"
     GRAY = "gray"
     BLUE = "blue"
+    RED = "red"
+
+
+class Templates:
+    CROSS = "cross_icon.png"
+    VISIT_ANTHILL = "visit_anthill.png"
 
 
 class ExtractText:
@@ -96,7 +102,7 @@ class ImageHandler:
         return thresh
 
     @staticmethod
-    def check_pixel_color(image, x, y, color):
+    def check_pixel_color(image, x, y, color, threshold=10):
         image = ImageHandler.decode_image(image)
 
         b, g, r = image[y, x]
@@ -105,7 +111,19 @@ class ImageHandler:
             return np.std([b, g, r]) < 4.0
         elif color == Colors.BLUE:
             # if blue channel is more than green and red, the pixel is near blue
-            return b > g and b > r and (2 * b - g - r) > 10
+            return b > g and b > r and (2 * b - g - r) > threshold
+        elif color == Colors.RED:
+            # if red channel is more than green and blue, the pixel is near red
+            return r > g and r > b and (2 * r - g - b) > threshold
+
+    @staticmethod
+    def check_pixel_color_exact(image, x, y, color, threshold=10):
+        image = ImageHandler.decode_image(image)
+
+        b, g, r = image[y, x]
+        b1, g1, r1 = color
+        t = threshold
+        return b1 - t < b < b1 + t and g1 - t < g < g1 + t and r1 - t < r < r1 + t
 
     @staticmethod
     def crop_image(image, x, y, h, w):
@@ -157,3 +175,23 @@ class ImageHandler:
             })
 
         return results
+
+    @staticmethod
+    def match_template(img_rgb, template_name, threshold=0.8):
+        # Convert image to grayscale
+        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+        # Read the template
+        template = cv2.imread(os.path.join("data", template_name), 0)
+        # Store width and height of template in w and h
+        w, h = template.shape[::-1]
+        # Perform match operations
+        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        # Store the coordinates of matched area in a numpy array
+        loc = np.where(res >= threshold)
+
+        # Get rectangles containing matched regions
+        rectangles = []
+        for pt in zip(*loc[::-1]):
+            rectangles.append({"x": pt[0], "y": pt[1], "w": w, "h": h})
+
+        return rectangles
