@@ -1,3 +1,4 @@
+import random
 import re
 from datetime import datetime
 from time import sleep
@@ -6,7 +7,8 @@ from models.task_icons.model import TaskIconTypes
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM, SLEEP_LONG
 from src.logger import logger
 from src.settings import Settings
-from src.utils import THRESHOLD_DIVIDER, Colors, ImageHandler
+from src.utils import (THRESHOLD_DIVIDER, Colors, ImageHandler, CommonTemplates,
+                       ButtonTemplates, HeaderTemplates, EventTemplates)
 
 
 class MorningBonusesCollectingBot(TheAntsBot):
@@ -37,6 +39,27 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def press_vip_signup_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "VIPSignUpButton", sleep_duration)
 
+    def press_workers_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "workersButton", sleep_duration)
+
+    def press_exploration_queue(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "explorationQueueBar", sleep_duration)
+
+    def press_first_ant_explore_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "firstAntExploreButton", sleep_duration)
+
+    def press_start_exploration_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "startExplorationButton", sleep_duration)
+
+    def press_events_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "eventsButton", sleep_duration)
+
+    def press_todo_list_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "todoListButton", sleep_duration)
+
+    def press_todo_list_left_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "todoListLeftTab", sleep_duration)
+
     def press_pack_shop_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "packShopButton", sleep_duration)
 
@@ -61,7 +84,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def press_hatch_cross_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "hatchCrossButton", sleep_duration)
 
-    def press_leaf_cutter_supply_button(self, settings, sleep_duration=SLEEP_LONG):
+    def press_leaf_cutter_supply_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "leafCutterSupplyButton", sleep_duration)
 
     def press_feeding_ground(self, settings, sleep_duration=SLEEP_MEDIUM):
@@ -139,6 +162,65 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.swipe(settings, "swipeCaveChallengeScreenDown", duration_ms=1000)
         sleep(settings[sleep_duration])
 
+    def swipe_benefits_rewards_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeBenefitsRewardsDown", duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def swipe_events_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeEventsScreenDown", duration_ms=1000)
+        sleep(settings[sleep_duration])
+
+    def swipe_events_screen_up(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeEventsScreenUp", duration_ms=1000)
+        sleep(settings[sleep_duration])
+
+    def swipe_todo_list_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeTodoListDown", duration_ms=1000)
+        sleep(settings[sleep_duration])
+
+    def swipe_todo_list_up(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeTodoListUp", duration_ms=1000)
+        sleep(settings[sleep_duration])
+
+    def find_event(self, settings, event_templates):
+        self.press_events_button(settings)
+
+        for _ in range(2):
+            self.swipe_events_screen_up(settings)
+
+        found_event = False
+        for _ in range(3):
+            for template in event_templates:
+                found_event = self.find_and_press_template(settings, template, "eventsScreen")
+                if found_event:
+                    break
+            if found_event:
+                break
+            else:
+                self.swipe_events_screen_down(settings)
+
+        if not found_event:
+            self.press_back_button(settings)
+
+        return found_event
+
+    def find_todo_task(self, settings, task_template):
+        self.press_todo_list_button(settings)
+        self.press_todo_list_left_tab(settings)
+
+        found_task = False
+        for _ in range(3):
+            found_task = self.find_and_press_template(settings, task_template, "todoListScreen", shift_x=405)
+            if found_task:
+                break
+            else:
+                self.swipe_todo_list_down(settings)
+
+        if not found_task:
+            self.press_back_button(settings)
+
+        return found_task
+
     def do_duel_deploy_troops(self, settings, press_back_button=True):
         image = self.get_screenshot(settings)
         need_to_deploy_troops = self.check_pixel_color(
@@ -150,36 +232,47 @@ class MorningBonusesCollectingBot(TheAntsBot):
             if press_back_button:
                 self.press_back_button(settings)
 
-    def do_duel(self, settings, duel_name, challenges_count=10):
+    def do_duel(self, settings, duel_name):
         self.press_position(settings, f"{duel_name}Bar", sleep_duration=SLEEP_SHORT)
         self.do_duel_deploy_troops(settings)
 
         # Close alert, if we are promoted to higher league
         self.press_free_space_bottom(settings)
-        for i in range(challenges_count):
-            self.press_position(settings, "duelOfQueensChallengeButton", sleep_duration=SLEEP_SHORT)
-            self.press_position(settings, f"{duel_name}FirstOpponentButton", sleep_duration=SLEEP_SHORT)
-            if i == 0:
+
+        opponents_positions = settings[f"{duel_name}OpponentPositions"]
+        is_first_step = True
+        while True:
+            self.press_position(settings, "duelChallengeButton", sleep_duration=SLEEP_SHORT)
+            image = self.get_screenshot(settings)
+            is_button_gray = self.check_pixel_color(image, settings, f"{duel_name}OpponentButtonColorPick", Colors.GRAY)
+            if is_button_gray:
+                self.press_back_button(settings)
+                break
+
+            position = random.choice(opponents_positions)
+            self.press_position_by_coordinates(settings, position, sleep_duration=SLEEP_SHORT)
+            if is_first_step:
                 self.do_duel_deploy_troops(settings, press_back_button=False)
-            self.press_position(settings, "duelOfQueensDepartButton", sleep_duration=SLEEP_SHORT)
-            self.press_position(settings, "duelOfQueensSkipButton", sleep_duration=SLEEP_SHORT)
+                is_first_step = False
+            self.press_position(settings, "duelDepartButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "duelSkipButton", sleep_duration=SLEEP_SHORT)
             self.press_back_button(settings)
 
-        self.press_position(settings, "duelOfQueensRewardsButton", sleep_duration=SLEEP_SHORT)
+        self.press_position(settings, "duelRewardsButton", sleep_duration=SLEEP_SHORT)
         # It's the same position for Claim rewards Button
-        self.press_position(settings, "duelOfQueensDepartButton", sleep_duration=SLEEP_SHORT)
-        self.press_position(settings, "duelOfQueensRewardsClaimButton", sleep_duration=SLEEP_SHORT)
+        self.press_position(settings, "duelDepartButton", sleep_duration=SLEEP_SHORT)
+        self.press_position(settings, "duelRewardsClaimButton", sleep_duration=SLEEP_SHORT)
         # Close Claim rewards window
-        self.press_position(settings, "duelOfQueensDepartButton", sleep_duration=SLEEP_SHORT)
+        self.press_position(settings, "duelDepartButton", sleep_duration=SLEEP_SHORT)
 
         self.press_back_button(settings)
         self.press_back_button(settings)
 
     def do_duel_of_queens(self, settings):
         if settings["duelOfQueensEnabled"] is True:
-            self.do_duel(settings, "duelOfQueens", challenges_count=10)
+            self.do_duel(settings, "duelOfQueens")
         if settings["duelOfSpecialAntsEnabled"] is True:
-            self.do_duel(settings, "duelOfSpecialAnts", challenges_count=5)
+            self.do_duel(settings, "duelOfSpecialAnts")
 
         self.press_back_button(settings)
 
@@ -189,7 +282,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
             # Close alert, if we are promoted to higher league
             self.press_free_space_bottom(settings)
 
-            self.press_position(settings, "duelOfQueensRewardsButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "duelRewardsButton", sleep_duration=SLEEP_SHORT)
             self.press_position(settings, "duelOfQueensRewardsRankingButton", sleep_duration=SLEEP_SHORT)
 
             for i in range(5):
@@ -356,7 +449,9 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def fill_leaf_cutters(self, settings):
         cutters_count = settings["leafCuttersCount"]
         cutters_positions = settings["leafCutterPositions"][:cutters_count]
-        for position in cutters_positions:
+        i = 0
+        position = cutters_positions[i]
+        while True:
             # Press the cutter
             self.press_location(
                 position["x"],
@@ -372,6 +467,18 @@ class MorningBonusesCollectingBot(TheAntsBot):
             sleep(settings[SLEEP_MEDIUM])
             self.press_leaf_cutter_supply_button(settings)
 
+            # Check if all workers are busy
+            found_header = self.find_template(settings, HeaderTemplates.WORKER_ANTS, "workerAntsHeaderArea")
+            if found_header:
+                self.press_back_button(settings)
+                sleep(settings[SLEEP_MEDIUM])
+                position["x"] = 360
+            else:
+                i += 1
+                if i >= len(cutters_positions):
+                    break
+                position = cutters_positions[i]
+
         # Get out and return to reset screen position
         self.press_world_button(settings)
         self.press_world_button(settings)
@@ -384,6 +491,41 @@ class MorningBonusesCollectingBot(TheAntsBot):
         # Get out and return to reset screen position
         self.press_world_button(settings)
         self.press_world_button(settings)
+
+    def process_help_and_gifts(self, settings):
+        rectangle_name = "helpAndGiftsArea"
+        self.find_and_press_template(settings, CommonTemplates.HELP, rectangle_name)
+
+        if self.find_and_press_template(settings, CommonTemplates.GIFTS, rectangle_name):
+            self.press_position(settings, "giftsClaimButton", sleep_duration=SLEEP_SHORT)
+            self.press_back_button(settings)
+            self.press_back_button(settings)
+
+    def get_benefits_bonuses(self, settings):
+        self.press_position(settings, "benefitsIcon", sleep_duration=SLEEP_SHORT)
+        rectangle_name = "benefitsTopBar"
+
+        templates = [
+            CommonTemplates.WILD_HUNT,
+            CommonTemplates.THRIVING_ANTHILL,
+            CommonTemplates.COLONY_LEADER,
+            CommonTemplates.MASS_DEVELOPMENT,
+            CommonTemplates.PROJECT_GUARDIAN,
+            CommonTemplates.GRANARY_ENRICHMENT,
+        ]
+        for template in templates:
+            rectangle = self.find_and_press_template(settings, template, rectangle_name)
+            if rectangle:
+                self.swipe_benefits_rewards_down(settings)
+
+                for _ in range(8):
+                    # self.press_position(settings, "benefitsClaimButton", sleep_duration=SLEEP_SHORT)
+                    found = self.find_and_press_template(settings, ButtonTemplates.EXPLORE_CLAIM, "benefitsButtons")
+                    if not found:
+                        break
+                    self.press_position(settings, "benefitsEmptySpace", sleep_duration=SLEEP_SHORT)
+
+        self.press_back_button(settings)
 
     def get_bonuses(self, settings):
         # Get VIP bonuses
@@ -474,71 +616,76 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.press_world_button(settings)
         self.press_world_button(settings)
 
-    def hatch_ants(self, settings):
+    def mutate_ants(self, settings):
+        if not settings["hatchAnts"]:
+            return
         config = settings["farmHatchingConfig"][str(self.device.number)]
 
-        # Mutate ants
         self.swipe_screen_to_troop_camp(settings)
-        self.press_position(settings, "troopCampSoldiersButton", sleep_duration=SLEEP_MEDIUM)
 
-        image = self.get_screenshot(settings, rectangle_name="marchUnitsHeading")
-        text = self.get_text_from_screenshot(image=image, settings=settings)
-        logger.debug(f"Extracted text from Troop Camp heading: {text}")
+        found_speedup = self.find_template(settings, CommonTemplates.SPEEDUP, "troopCampIconsArea")
+        if not found_speedup:
+            found_icon = self.find_and_press_template(settings, CommonTemplates.SOLDIER_ANTS, "troopCampIconsArea")
+            if found_icon:
+                found_header = self.find_template(settings, HeaderTemplates.TROOP_CAMP, "screenMenuHeading")
+                if found_header:
+                    mutation_upgrade_button_align_left = 45
+                    mutation_upgrade_button_align_top = 175
+                    mutation_plates = settings["troopCampPlatesPositions"]
+                    position = mutation_plates[config["plate"] - 1]
+                    self.press_location(position["x"], position["y"])
+                    sleep(settings[SLEEP_SHORT])
+                    # Align of Upgrade button, it could be center or left
+                    if config["align"] == "left":
+                        self.press_location(
+                            position["x"] - mutation_upgrade_button_align_left,
+                            position["y"] + mutation_upgrade_button_align_top
+                        )
+                    elif config["align"] == "center":
+                        self.press_location(
+                            position["x"],
+                            position["y"] + mutation_upgrade_button_align_top
+                        )
+                    sleep(settings[SLEEP_SHORT])
 
-        if "Troop" not in text and "Camp" not in text:
-            self.press_back_button(settings)
-        else:
-            mutation_upgrade_button_align_left = 45
-            mutation_upgrade_button_align_top = 175
-            mutation_plates = settings["troopCampPlatesPositions"]
-            position = mutation_plates[config["plate"] - 1]
-            self.press_location(position["x"], position["y"])
-            sleep(settings[SLEEP_SHORT])
-            # Align of Upgrade button, it could be center or left
-            if config["align"] == "left":
-                self.press_location(
-                    position["x"] - mutation_upgrade_button_align_left,
-                    position["y"] + mutation_upgrade_button_align_top
-                )
-            elif config["align"] == "center":
-                self.press_location(
-                    position["x"],
-                    position["y"] + mutation_upgrade_button_align_top
-                )
-            sleep(settings[SLEEP_SHORT])
-
-            self.press_location_and_type(settings, "troopCampInputAmountField", config["amount"], backspace_count=6)
-            self.press_position(settings, "troopCampStartMutationButton", sleep_duration=SLEEP_SHORT)
-            self.press_back_button(settings)
-            self.press_back_button(settings)
-
-            image = self.get_screenshot(settings, rectangle_name="marchUnitsHeading")
-            text = self.get_text_from_screenshot(image=image, settings=settings)
-            if "Troop" in text or "Camp" in text:
-                # if mutation was already started, and we still in Troop Camp, go back
-                self.press_back_button(settings)
+                    self.press_location_and_type(settings, "troopCampInputAmountField", config["mutation_amount"],
+                                                 backspace_count=6)
+                    self.press_position(settings, "troopCampStartMutationButton", sleep_duration=SLEEP_SHORT)
+                    self.press_back_button(settings)
+                    self.press_back_button(settings)
 
         self.press_world_button(settings)
         self.press_world_button(settings)
 
-        # Hatch ants
+    def hatch_ants(self, settings):
+        if not settings["hatchAnts"]:
+            return
+        config = settings["farmHatchingConfig"][str(self.device.number)]
+
         hatching_nests = settings["hatchNestPositions"]
         for nest_position in hatching_nests:
             # Press nest location
             self.press_location(nest_position["x"], nest_position["y"])
             sleep(settings[SLEEP_SHORT])
-            # Press hatch icon
-            self.press_location(nest_position["x1"], nest_position["y1"])
-            sleep(settings[SLEEP_MEDIUM])
 
-            self.press_location_and_type(settings, "hatchAntsInputAmountField", config["amount"], backspace_count=6)
-            self.press_position(settings, "hatchAntsStartButton", sleep_duration=SLEEP_SHORT)
-            self.press_back_button(settings)
+            found_speedup = self.find_template(settings, CommonTemplates.HATCH_ANTS_SPEEDUP, "hatchNestIconsArea")
+            if not found_speedup:
+                # Press hatch icon
+                self.press_location(nest_position["x1"], nest_position["y1"])
+                sleep(settings[SLEEP_MEDIUM])
+
+                self.press_location_and_type(settings, "hatchAntsInputAmountField", config["hatch_amount"],
+                                             backspace_count=6)
+                self.press_position(settings, "hatchAntsStartButton", sleep_duration=SLEEP_SHORT)
+                self.press_back_button(settings)
 
         self.press_world_button(settings)
         self.press_world_button(settings)
 
     def hatch_special_ants(self, settings):
+        if not settings["hatchSpecialAnts"]:
+            return
+
         # Free hatch Special Ants
         self.press_hatch_menu_button(settings)
 
@@ -562,6 +709,9 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.press_back_button(settings)
 
     def check_and_hatch_free_special_ant(self, settings):
+        if not settings["hatchSpecialAnts"]:
+            return
+
         image = self.get_screenshot(settings)
         # TODO: Dirty hack - check for specific color
         found_red_dot = self.check_pixel_color(
@@ -612,6 +762,16 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.press_world_button(settings)
         self.press_world_button(settings)
 
+        # Process right farms
+        self.swipe_screen_to_hatch_insects(settings)
+        right_farms = positions[7:10]
+        self.process_termite_farms(settings, right_farms)
+        self.press_world_button(settings)
+        self.press_world_button(settings)
+
+        if not settings["hatchInsects"]:
+            return
+
         # Process the nests
         self.swipe_screen_to_hatch_insects(settings)
         nests = positions[3:7]
@@ -625,10 +785,9 @@ class MorningBonusesCollectingBot(TheAntsBot):
             sleep(settings[SLEEP_SHORT])
             self.press_hatch_insects_hatch_button(settings)
 
-            image = self.get_screenshot(settings)
-            panel_is_gray = self.check_pixel_color(image, settings, "hatchInsectsBottomPanelColorPick", Colors.GRAY)
-            if not panel_is_gray:
-                # If panel is brown, we collected a hatched insect and need to return
+            is_collected_insect = self.find_template(settings, CommonTemplates.INSECT_STAR_UP, "insectScreenBottomBar")
+            if is_collected_insect:
+                # If we collected a hatched insect, then we need to return
                 self.press_back_button(settings)
                 self.press_hatch_insects_hatch_button(settings)
 
@@ -643,12 +802,30 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.press_world_button(settings)
         self.press_world_button(settings)
 
-        # Process right farms
-        self.swipe_screen_to_hatch_insects(settings)
-        right_farms = positions[7:10]
-        self.process_termite_farms(settings, right_farms)
-        self.press_world_button(settings)
-        self.press_world_button(settings)
+    def explore(self, settings):
+        self.press_workers_button(settings)
+        self.press_exploration_queue(settings)
+
+        workers_count = settings["farmWorkersCount"][str(self.device.number)]
+        # Claim rewards
+        for _ in range(workers_count):
+            found = self.find_and_press_template(settings, ButtonTemplates.EXPLORE_CLAIM,
+                                                 "workerAntsScreen", threshold=0.8)
+            if not found:
+                break
+            # self.press_first_ant_explore_button(settings)
+            self.press_back_button(settings)
+
+        # Start new exploration
+        for _ in range(workers_count):
+            # self.press_first_ant_explore_button(settings)
+            found = self.find_and_press_template(settings, ButtonTemplates.EXPLORE,
+                                                 "workerAntsScreen", threshold=0.8)
+            if not found:
+                break
+            self.press_start_exploration_button(settings)
+
+        self.press_back_button(settings)
 
     def process_evolutions(self, settings, donate_resources=True, donate_diamonds=True):
         # Not working properly
@@ -678,7 +855,18 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def process_evolutions_by_coordinates(self, settings, tab_name, donate_resources=True, donate_diamonds=True):
         evolutions_config = settings["allianceEvolutions"][tab_name]
         evolutions_positions = settings["allianceEvolutionsPositions"][evolutions_config]
+
+        recommended_evolution = settings["allianceEvolutionsPriority"][tab_name]
+        if recommended_evolution - 1 > len(evolutions_positions):
+            recommended_evolution = len(evolutions_positions)
+        evolutions_positions.insert(0, evolutions_positions.pop(recommended_evolution - 1))
+
+        resources_completed = False
+        diamonds_completed = False
         for position in evolutions_positions:
+            if resources_completed and diamonds_completed:
+                break
+
             self.press_location(
                 position["x"],
                 position["y"]
@@ -686,7 +874,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
             sleep(settings[SLEEP_MEDIUM])
 
             image = self.get_screenshot(settings)
-            if donate_resources:
+            if donate_resources and not resources_completed:
                 button_is_gray = self.check_pixel_color(
                     image, settings, "allianceEvolutionDonateResourceButtonColorPick", Colors.GRAY
                 )
@@ -694,13 +882,18 @@ class MorningBonusesCollectingBot(TheAntsBot):
                     for _ in range(25):
                         self.press_alliance_evolution_donate_resources_button(settings)
 
-            if donate_diamonds:
+                # if button is gray, donation is completed; if not, the same
+                resources_completed = True
+
+            if donate_diamonds and not diamonds_completed:
                 button_is_gray = self.check_pixel_color(
                     image, settings, "allianceEvolutionDonateDiamondButtonColorPick", Colors.GRAY
                 )
                 if not button_is_gray:
                     for _ in range(10):
                         self.press_alliance_evolution_donate_diamonds_button(settings)
+                else:
+                    diamonds_completed = True
 
             self.press_back_button(settings)
 
@@ -727,6 +920,8 @@ class MorningBonusesCollectingBot(TheAntsBot):
             return
 
         self.press_close_banner_button(settings)
+        self.process_help_and_gifts(settings)
+        self.explore(settings)
         self.do_tasks(settings, shared["models"]["task_icons"])
         self.process_resource_factory(settings)
         self.fill_leaf_cutters(settings)
@@ -734,6 +929,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.get_bonuses(settings)
         self.hatch_special_ants(settings)
         self.donate_to_evolution(settings)
+        self.mutate_ants(settings)
         self.hatch_ants(settings)
         self.hatch_insects(settings)
 
@@ -821,11 +1017,16 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
             return
 
         self.press_close_banner_button(settings)
+        self.process_help_and_gifts(settings)
+        self.explore(settings)
         self.do_tasks(settings, shared["models"]["task_icons"])
+        self.get_benefits_bonuses(settings)
         self.process_resource_factory(settings)
         self.fill_leaf_cutters(settings)
         self.fill_feeding_ground(settings)
         self.donate_to_evolution(settings, donate_diamonds=False)
+        self.mutate_ants(settings)
+        self.hatch_ants(settings)
         self.claim_rewards(settings)
         self.read_mail(settings)
         self.hatch_insects(settings)
@@ -837,11 +1038,14 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
 
 
 class ForceEventBonusesCollectingBot(MorningBonusesCollectingBot):
-    def press_force_event_tasks_button(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "forceEventTasksButton", sleep_duration)
+    def press_force_event_tasks_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "forceEventTasksTab", sleep_duration)
+
+    def press_force_event_transport_tab(self, settings, sleep_duration=SLEEP_SHORT, multiplier=1):
+        self.press_position(settings, "forceEventTransportTab", sleep_duration, multiplier)
 
     def press_force_event_transport_button(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "forceEventTransportButton", sleep_duration)
+        self.press_position_and_hold(settings, "forceEventTransportButton", sleep_duration, duration_ms=5000)
 
     def press_force_event_task_reward_claim_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "forceEventTaskRewardClaimButton", sleep_duration)
@@ -853,8 +1057,12 @@ class ForceEventBonusesCollectingBot(MorningBonusesCollectingBot):
         self.swipe(settings, "swipeForceEventRewardsScreen", duration_ms=1000)
         sleep(settings[sleep_duration])
 
+    def swipe_normal_rewards_screen(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeForceEventNormalRewards", duration_ms=500)
+        sleep(settings[sleep_duration])
+
     def claim_force_event_rewards_by_positions(self, settings):
-        self.press_force_event_tasks_button(settings)
+        self.press_force_event_tasks_tab(settings)
 
         days_positions = settings["forceEventDaysBoxesPositions"]
         for day_position in days_positions:
@@ -891,41 +1099,42 @@ class ForceEventBonusesCollectingBot(MorningBonusesCollectingBot):
             sleep(settings[SLEEP_SHORT])
             self.press_force_event_task_empty_field(settings)
 
+        self.press_force_event_transport_tab(settings, sleep_duration=SLEEP_MEDIUM, multiplier=3)
         self.press_force_event_transport_button(settings)
+
+        while True:
+            # Wait for all fragments to be transferred
+            sleep(settings[SLEEP_LONG])
+            found_button = self.find_template(settings, ButtonTemplates.TRANSPORT_PAUSE,
+                                              "forceEventTransportArea", threshold=0.8)
+            if not found_button:
+                break
+
+        # Claim normal rewards from 1 to 20
+        rewards_positions = settings["forceEventNormalRewardsPositions"]
+        for _ in range(10):
+            for position in rewards_positions:
+                # Press the reward
+                self.press_location(
+                    position["x"],
+                    position["y"]
+                )
+                sleep(settings[SLEEP_SHORT])
+                self.press_force_event_transport_tab(settings)
+
+            self.swipe_normal_rewards_screen(settings)
 
     def do_collect(self, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
+            return
+
+        found_event = self.find_event(settings, [EventTemplates.FORCE_OF_TIDES])
+        if not found_event:
             return
 
         self.claim_force_event_rewards_by_positions(settings)
-
-    def run(self, shared):
-        logger.info(f"Ready to run the collecting bot on {self.device.name}")
-
-        self.do_collect(shared)
-
-
-class CollectingBot(EveningBonusesCollectingBot):
-    def do_collect(self, shared):
-        settings = Settings.load_settings()
-
-        if not Settings.check_enabled(settings):
-            return
-
-        self.press_close_banner_button(settings)
-        self.do_tasks(settings, shared["models"]["task_icons"])
-        self.process_resource_factory(settings)
-        self.fill_leaf_cutters(settings)
-        self.fill_feeding_ground(settings)
-        self.hatch_special_ants(settings)
-        self.get_bonuses(settings)
-        self.donate_to_evolution(settings)
-        self.hatch_ants(settings)
-        self.claim_rewards(settings)
-        self.read_mail(settings)
-        self.hatch_insects(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
@@ -941,8 +1150,8 @@ class TasksBot(MorningBonusesCollectingBot):
             return
 
         self.press_close_banner_button(settings)
+        self.process_help_and_gifts(settings)
         self.do_tasks(settings, shared["models"]["task_icons"])
-        self.process_resource_factory(settings)
         self.check_and_hatch_free_special_ant(settings)
         self.hatch_insects(settings)
 
@@ -994,7 +1203,124 @@ class HatchingBot(MorningBonusesCollectingBot):
         if not Settings.check_enabled(settings):
             return
 
+        self.press_world_button(settings)
+        self.press_world_button(settings)
+
+        self.mutate_ants(settings)
         self.hatch_ants(settings)
+
+    def run(self, shared):
+        logger.info(f"Ready to run the collecting bot on {self.device.name}")
+
+        self.do_collect(shared)
+
+
+class VIPStoreBot(MorningBonusesCollectingBot):
+    def swipe_vip_store_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeVIPStoreScreenDown", duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def swipe_vip_store_slider(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeVIPStoreSlider", duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def buy_vip_store(self, settings):
+        level = settings["farmVIPLevels"][str(self.device.number)]
+        plates_sequence = settings["VIPStorePlatesSequence"][str(level)]
+        plates_positions = settings["VIPStorePlatesPositions"]
+
+        for plate_number in plates_sequence:
+            position = plates_positions[plate_number - 1]
+            self.press_location(position["x"], position["y"])
+            sleep(settings[SLEEP_SHORT])
+
+            # Move slider
+            self.swipe_vip_store_slider(settings)
+
+            # Purchase item
+            self.press_position(settings, "VIPStorePurchaseButton", sleep_duration=SLEEP_SHORT)
+            self.press_position(settings, "VIPStorePurchaseConfirmButton", sleep_duration=SLEEP_SHORT)
+            self.press_back_button(settings)
+
+    def do_collect(self, shared):
+        settings = Settings.load_settings()
+
+        if not Settings.check_enabled(settings):
+            return
+
+        found_event = self.find_event(settings, [EventTemplates.VIP_STORE])
+        if not found_event:
+            return
+
+        self.buy_vip_store(settings)
+
+    def run(self, shared):
+        logger.info(f"Ready to run the collecting bot on {self.device.name}")
+
+        self.do_collect(shared)
+
+
+class StoreBot(MorningBonusesCollectingBot):
+    ITEMS_MAPPING = {
+        "cell_fluid": CommonTemplates.CELL_FLUID,
+        "cell_nucleus": CommonTemplates.CELL_NUCLEUS,
+        "genetic_factor_i": CommonTemplates.GENETIC_FACTOR_I,
+        "genetic_factor_ii": CommonTemplates.GENETIC_FACTOR_II,
+        "genetic_factor_iii": CommonTemplates.GENETIC_FACTOR_III,
+        "dna": CommonTemplates.DNA,
+        "advanced_dna": CommonTemplates.ADVANCED_DNA,
+        "germ": CommonTemplates.GERM,
+        "inducible_enzyme": CommonTemplates.INDUCIBLE_ENZYME,
+        "fungus_nutrient_i": CommonTemplates.FUNGUS_NUTRIENT_I,
+        "fungus_nutrient_ii": CommonTemplates.FUNGUS_NUTRIENT_II,
+        "hypha": CommonTemplates.HYPHA,
+        "special_hypha": CommonTemplates.SPECIAL_HYPHA
+    }
+
+    def press_left_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "storeLeftTab", sleep_duration)
+
+    def press_right_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "storeLeftTab", sleep_duration)
+
+    def swipe_store_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeStoreScreenDown", duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def do_store(self, settings, store_name):
+        icon_name = f"{store_name}Icon"
+        self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
+
+        if store_name in ("epopticFungiStore", "duelStore"):
+            self.press_left_tab(settings)
+
+        for _ in range(2):
+            self.swipe_store_screen_down(settings)
+
+        item_names = settings["storeBuyItems"][store_name]
+        for item_name in item_names:
+            item_template = self.ITEMS_MAPPING[item_name]
+            found = self.find_and_press_template(settings, item_template, "storeItemsArea", threshold=0.8, shift_y=170)
+            if found:
+                self.press_position(settings, "storeItemClaimButton", sleep_duration=SLEEP_SHORT)
+                self.press_position(settings, "storeItemClaimConfirmButton", sleep_duration=SLEEP_SHORT)
+                self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
+
+    def do_collect(self, shared):
+        settings = Settings.load_settings()
+
+        if not Settings.check_enabled(settings):
+            return
+
+        found_task = self.find_todo_task(settings, CommonTemplates.DUEL_STORE)
+        if not found_task:
+            return
+
+        self.do_store(settings, "epopticFungiStore")
+        self.do_store(settings, "duelStore")
+        self.do_store(settings, "mineStore")
+        self.do_store(settings, "specialAntDuelStore")
+        self.press_back_button(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")

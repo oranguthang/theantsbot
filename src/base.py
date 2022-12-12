@@ -5,7 +5,7 @@ import psutil
 from ppadb.client import Client
 
 from src.logger import logger
-from src.utils import ExtractText, ImageHandler, Templates
+from src.utils import ExtractText, ImageHandler, CommonTemplates
 
 SLEEP_SHORT = "sleepShort"
 SLEEP_MEDIUM = "sleepMedium"
@@ -13,7 +13,6 @@ SLEEP_LONG = "sleepLong"
 
 
 class Action:
-    ACTION_COLLECTING = "collecting"
     ACTION_MORNING = "morning"
     ACTION_WATER = "water"
     ACTION_HUNT = "hunt"
@@ -23,6 +22,8 @@ class Action:
     ACTION_TASKS = "tasks"
     ACTION_HATCH_SPECIAL = "hatch_special"
     ACTION_HATCH = "hatch"
+    ACTION_VIP_STORE = "vip_store"
+    ACTION_STORE = "store"
 
 
 class ProcessHandler:
@@ -103,29 +104,28 @@ class DeviceHandler:
             devices = settings["devices"]
 
         self.skip_devices = skip_devices
-        self.devices_hosts = []
+        self.devices_hosts = {}
         devices_hosts = [device.split(":") for device in devices]
         for idx, host in enumerate(devices_hosts):
             if idx + 1 not in self.skip_devices:
-                self.devices_hosts.append(host)
+                self.devices_hosts[idx + 1] = host
 
         self.client = Client(host="127.0.0.1", port=5037)
         logger.info(f"Client version: {self.client.version()}")
 
     def connect_devices(self):
-        for idx, (host, port) in enumerate(self.devices_hosts):
+        for host, port in self.devices_hosts.values():
             self.client.remote_connect(host, int(port))
             self.client.device(f"{host}:{port}")
 
     def get_devices(self):
         connected_devices = []
-        for idx, (host, port) in enumerate(self.devices_hosts):
+        for idx, (host, port) in self.devices_hosts.items():
             try:
                 device = self.client.device(f"{host}:{port}")
                 if device:
-                    number = idx + 1
-                    device.number = number
-                    name = f"Farm {number}"
+                    device.number = idx
+                    name = f"Farm {idx}"
                     device.name = name
                     logger.info(f"Connected device {name} {host}:{port}")
                     connected_devices.append(device)
@@ -230,14 +230,27 @@ class TheAntsBot:
         if sleep_duration:
             sleep(settings[sleep_duration])
 
+    def press_position_and_hold(self, settings, position_name, sleep_duration, multiplier=1, duration_ms=1000):
+        x = settings["positions"][position_name]["x"]
+        y = settings["positions"][position_name]["y"]
+        self.device.shell(f"input swipe {x} {y} {x} {y} {duration_ms}")
+        if sleep_duration:
+            sleep(settings[sleep_duration] * multiplier)
+
     def press_position(self, settings, position_name, sleep_duration, multiplier=1):
         self.press_location(settings["positions"][position_name]["x"], settings["positions"][position_name]["y"])
         if sleep_duration:
             sleep(settings[sleep_duration] * multiplier)
 
-    def press_position_by_inner_rectangle(self, settings, rectangle_name, inner_rect, sleep_duration, multiplier=1):
-        x = settings["rectangles"][rectangle_name]["x"] + inner_rect["x"] + inner_rect["w"] // 2
-        y = settings["rectangles"][rectangle_name]["y"] + inner_rect["y"] + inner_rect["h"] // 2
+    def press_position_by_coordinates(self, settings, position, sleep_duration, multiplier=1):
+        self.press_location(position["x"], position["y"])
+        if sleep_duration:
+            sleep(settings[sleep_duration] * multiplier)
+
+    def press_position_by_inner_rectangle(self, settings, rectangle_name, inner_rect,
+                                          shift_x, shift_y, sleep_duration, multiplier=1):
+        x = settings["rectangles"][rectangle_name]["x"] + inner_rect["x"] + inner_rect["w"] // 2 + shift_x
+        y = settings["rectangles"][rectangle_name]["y"] + inner_rect["y"] + inner_rect["h"] // 2 + shift_y
         self.press_location(x, y)
         if sleep_duration:
             sleep(settings[sleep_duration] * multiplier)
@@ -251,6 +264,27 @@ class TheAntsBot:
     def press_free_space_bottom(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "freeSpaceBottom", sleep_duration)
 
+    def find_template(self, settings, template, rectangle_name=None, image=None, threshold=0.6):
+        if rectangle_name and image:
+            raise Exception("Only one of the attributes 'rectangle_name', 'image' could be passed")
+
+        if image is None:
+            image = self.get_screenshot(settings, rectangle_name=rectangle_name)
+        rectangles = ImageHandler.match_template(image, template, threshold=threshold)
+        if rectangles:
+            rectangle = rectangles[0]
+            return rectangle
+        return None
+
+    def find_and_press_template(self, settings, template, rectangle_name, threshold=0.6,
+                                shift_x=0, shift_y=0, sleep_duration=SLEEP_SHORT, multiplier=1):
+        rectangle = self.find_template(settings, template, rectangle_name=rectangle_name, threshold=threshold)
+        if rectangle:
+            self.press_position_by_inner_rectangle(settings, rectangle_name, rectangle,
+                                                   shift_x, shift_y, sleep_duration, multiplier)
+            return rectangle
+        return None
+
     def press_alliance_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "allianceButton", sleep_duration)
         if not self.closed_less_active_alert:
@@ -259,17 +293,14 @@ class TheAntsBot:
             self.closed_less_active_alert = True
             # Also close recommended alliance alert
             self.press_position(settings, "allianceManageButton", sleep_duration=SLEEP_SHORT)
-            self.press_position(settings, "allianceRecommendedButton", sleep_duration=SLEEP_SHORT)
-            self.press_back_button(settings)
+            found_icon = self.find_and_press_template(settings, CommonTemplates.RECOMMENDED_ALLIANCE,
+                                                      "allianceManageArea", threshold=0.8)
+            if found_icon:
+                self.press_back_button(settings)
             self.press_position(settings, "allianceMainButton", sleep_duration=SLEEP_SHORT)
 
     def press_close_banner_button(self, settings, sleep_duration=SLEEP_SHORT):
-        rectangle_name = "bannerCrossIcon"
-        image = self.get_screenshot(settings, rectangle_name=rectangle_name)
-
-        rectangles = ImageHandler.match_template(image, Templates.CROSS)
-        if rectangles:
-            self.press_position_by_inner_rectangle(settings, rectangle_name, rectangles[0], sleep_duration)
+        self.find_and_press_template(settings, CommonTemplates.CROSS, "bannerCrossIcon", sleep_duration=sleep_duration)
 
     def press_world_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_close_banner_button(settings)

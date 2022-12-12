@@ -8,8 +8,8 @@ from src.gatherer import GatheringBot
 from src.hunter import HuntingBot
 from src.waterer import WateringBot
 from src.collector import (MorningBonusesCollectingBot, EveningBonusesCollectingBot,
-                           CollectingBot, ForceEventBonusesCollectingBot, TasksBot,
-                           HatchingBot, HatchingSpecialAntsBot)
+                           ForceEventBonusesCollectingBot, TasksBot, HatchingBot,
+                           HatchingSpecialAntsBot, StoreBot, VIPStoreBot)
 from src.logger import logger
 from src.settings import Settings
 
@@ -45,8 +45,6 @@ def main():
                 bot_class = MorningBonusesCollectingBot
             elif action == Action.ACTION_EVENING:
                 bot_class = EveningBonusesCollectingBot
-            elif action == Action.ACTION_COLLECTING:
-                bot_class = CollectingBot
             elif action == Action.ACTION_FORCE_EVENT:
                 bot_class = ForceEventBonusesCollectingBot
             elif action == Action.ACTION_TASKS:
@@ -55,6 +53,10 @@ def main():
                 bot_class = HatchingSpecialAntsBot
             elif action == Action.ACTION_HATCH:
                 bot_class = HatchingBot
+            elif action == Action.ACTION_VIP_STORE:
+                bot_class = VIPStoreBot
+            elif action == Action.ACTION_STORE:
+                bot_class = StoreBot
             elif action == Action.ACTION_GATHER:
                 pool_size = settings["gatherPoolSize"]
                 bot_class = GatheringBot

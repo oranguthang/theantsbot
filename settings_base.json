@@ -21,6 +21,9 @@
     "disabledFarms": [2,3,4,5],
     "duelOfQueensEnabled": true,
     "duelOfSpecialAntsEnabled": true,
+    "hatchAnts": true,
+    "hatchSpecialAnts": true,
+    "hatchInsects": true,
     "findPorts": false,
     "runBatLoader": false,
     "batFilePath": "run_farms.bat",
@@ -120,43 +123,71 @@
         "1": {
             "plate": 7,
             "align": "left",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "2": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "3": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "4": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "5": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "6": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "7": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         },
         "8": {
             "plate": 4,
             "align": "center",
-            "amount": 2000
+            "hatch_amount": 2000,
+            "mutation_amount": 500
         }
+    },
+    "farmVIPLevels": {
+        "1": 8,
+        "2": 8,
+        "3": 7,
+        "4": 7,
+        "5": 7,
+        "6": 7,
+        "7": 7,
+        "8": 7
+    },
+    "farmWorkersCount": {
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 4,
+        "5": 4,
+        "6": 4,
+        "7": 4,
+        "8": 4
     },
     "strategies": {
         "1": [
@@ -204,7 +235,7 @@
             "x": 450,
             "y": 1210
         },
-        "marchUnitsHeadingColorPick": {
+        "screenMenuHeadingColorPick": {
             "x": 700,
             "y": 75
         },
@@ -273,7 +304,7 @@
             "y": 650
         },
         "returnFromAnthillButton": {
-            "x": 250,
+            "x": 190,
             "y": 1215
         },
         "VIPButton": {
@@ -292,9 +323,57 @@
             "x": 660,
             "y": 135
         },
+        "VIPStoreScreenMargin": {
+            "x": 0,
+            "y": 475
+        },
+        "VIPStorePurchaseButton": {
+            "x": 360,
+            "y": 915
+        },
+        "VIPStorePurchaseConfirmButton": {
+            "x": 360,
+            "y": 765
+        },
+        "epopticFungiStoreIcon": {
+            "x": 65,
+            "y": 165
+        },
+        "duelStoreIcon": {
+            "x": 200,
+            "y": 165
+        },
+        "mineStoreIcon": {
+            "x": 340,
+            "y": 165
+        },
+        "specialAntDuelStoreIcon": {
+            "x": 475,
+            "y": 165
+        },
+        "storeLeftTab": {
+            "x": 175,
+            "y": 465
+        },
+        "storeRightTab": {
+            "x": 545,
+            "y": 465
+        },
+        "storeItemClaimButton": {
+            "x": 360,
+            "y": 910
+        },
+        "storeItemClaimConfirmButton": {
+            "x": 360,
+            "y": 770
+        },
         "packShopButton": {
             "x": 675,
             "y": 405
+        },
+        "eventsButton": {
+            "x": 675,
+            "y": 305
         },
         "packShopOneTimeOfferButton": {
             "x": 70,
@@ -317,7 +396,7 @@
             "y": 925
         },
         "hatchSpecialAntButton": {
-            "x": 360,
+            "x": 300,
             "y": 1035
         },
         "hatchSpecialAntScreenColorPick": {
@@ -460,19 +539,19 @@
             "x": 240,
             "y": 775
         },
-        "duelOfQueensChallengeButton": {
+        "duelChallengeButton": {
             "x": 535,
             "y": 1210
         },
-        "duelOfQueensFirstOpponentButton": {
-            "x": 585,
+        "duelOfQueensOpponentButtonColorPick": {
+            "x": 545,
             "y": 410
         },
-        "duelOfSpecialAntsFirstOpponentButton": {
-            "x": 585,
+        "duelOfSpecialAntsOpponentButtonColorPick": {
+            "x": 545,
             "y": 360
         },
-        "duelOfQueensRewardsButton": {
+        "duelRewardsButton": {
             "x": 580,
             "y": 130
         },
@@ -484,25 +563,29 @@
             "x": 625,
             "y": 610
         },
-        "duelOfQueensRewardsClaimButton": {
+        "duelRewardsClaimButton": {
             "x": 360,
             "y": 760
         },
-        "duelOfQueensDepartButton": {
+        "duelDepartButton": {
             "x": 360,
             "y": 1225
         },
-        "duelOfQueensSkipButton": {
+        "duelSkipButton": {
             "x": 635,
             "y": 1035
         },
-        "forceEventTasksButton": {
+        "forceEventTasksTab": {
             "x": 205,
             "y": 170
         },
-        "forceEventTransportButton": {
+        "forceEventTransportTab": {
             "x": 470,
             "y": 170
+        },
+        "forceEventTransportButton": {
+            "x": 620,
+            "y": 780
         },
         "forceEventTaskRewardClaimButton": {
             "x": 615,
@@ -554,7 +637,7 @@
         },
         "insectHabitatRelativeFromNests": {
             "x": 255,
-            "y": 745
+            "y": 790
         },
         "insectHabitatInsectsIcon": {
             "x": 450,
@@ -611,10 +694,50 @@
         "resourceFactoryOverflowConfirmButton": {
             "x": 125,
             "y": 775
+        },
+        "benefitsIcon": {
+            "x": 670,
+            "y": 200
+        },
+        "benefitsClaimButton": {
+            "x": 580,
+            "y": 755
+        },
+        "benefitsEmptySpace": {
+            "x": 360,
+            "y": 50
+        },
+        "giftsClaimButton": {
+            "x": 360,
+            "y": 1215
+        },
+        "workersButton": {
+            "x": 50,
+            "y": 200
+        },
+        "explorationQueueBar": {
+            "x": 510,
+            "y": 430
+        },
+        "firstAntExploreButton": {
+            "x": 565,
+            "y": 700
+        },
+        "startExplorationButton": {
+            "x": 360,
+            "y": 850
+        },
+        "todoListButton": {
+            "x": 40,
+            "y": 645
+        },
+        "todoListLeftTab": {
+            "x": 135,
+            "y": 330
         }
     },
     "rectangles": {
-        "marchUnitsHeading": {
+        "screenMenuHeading": {
             "x": 0,
             "y": 0,
             "h": 90,
@@ -679,6 +802,84 @@
             "y": 100,
             "h": 200,
             "w": 200
+        },
+        "benefitsTopBar": {
+            "x": 0,
+            "y": 90,
+            "h": 165,
+            "w": 720
+        },
+        "helpAndGiftsArea": {
+            "x": 610,
+            "y": 780,
+            "h": 220,
+            "w": 110
+        },
+        "workerAntsHeaderArea": {
+            "x": 0,
+            "y": 0,
+            "h": 400,
+            "w": 720
+        },
+        "forceEventTransportArea": {
+            "x": 0,
+            "y": 500,
+            "h": 400,
+            "w": 720
+        },
+        "allianceManageArea": {
+            "x": 0,
+            "y": 170,
+            "h": 355,
+            "w": 720
+        },
+        "storeItemsArea": {
+            "x": 0,
+            "y": 435,
+            "h": 785,
+            "w": 720
+        },
+        "insectScreenBottomBar": {
+            "x": 0,
+            "y": 1130,
+            "h": 150,
+            "w": 720
+        },
+        "troopCampIconsArea": {
+            "x": 115,
+            "y": 800,
+            "h": 225,
+            "w": 510
+        },
+        "hatchNestIconsArea": {
+            "x": 115,
+            "y": 655,
+            "h": 330,
+            "w": 480
+        },
+        "eventsScreen": {
+            "x": 0,
+            "y": 80,
+            "h": 1200,
+            "w": 720
+        },
+        "todoListScreen": {
+            "x": 0,
+            "y": 365,
+            "h": 635,
+            "w": 515
+        },
+        "workerAntsScreen": {
+            "x": 55,
+            "y": 465,
+            "h": 540,
+            "w": 605
+        },
+        "benefitsButtons": {
+            "x": 450,
+            "y": 500,
+            "h": 700,
+            "w": 270
         }
     },
     "swipes": {
@@ -736,6 +937,12 @@
             "x2": 360,
             "y2": 1275
         },
+        "swipeForceEventNormalRewards": {
+            "x1": 270,
+            "y1": 1145,
+            "x2": 270,
+            "y2": 990
+        },
         "swipeScreenToHatchInsects": {
             "x1": 360,
             "y1": 340,
@@ -753,11 +960,63 @@
             "y1": 1000,
             "x2": 360,
             "y2": 220
+        },
+        "swipeVIPStoreScreenDown": {
+            "x1": 360,
+            "y1": 480,
+            "x2": 360,
+            "y2": 1275
+        },
+        "swipeStoreScreenDown": {
+            "x1": 360,
+            "y1": 600,
+            "x2": 360,
+            "y2": 1275
+        },
+        "swipeVIPStoreSlider": {
+            "x1": 120,
+            "y1": 780,
+            "x2": 450,
+            "y2": 780
+        },
+        "swipeBenefitsRewardsDown": {
+            "x1": 360,
+            "y1": 700,
+            "x2": 360,
+            "y2": 1250
+        },
+        "swipeEventsScreenDown": {
+            "x1": 360,
+            "y1": 1215,
+            "x2": 360,
+            "y2": 150
+        },
+        "swipeEventsScreenUp": {
+            "x1": 360,
+            "y1": 150,
+            "x2": 360,
+            "y2": 1215
+        },
+        "swipeTodoListDown": {
+            "x1": 260,
+            "y1": 930,
+            "x2": 260,
+            "y2": 405
+        },
+        "swipeTodoListUp": {
+            "x1": 260,
+            "y1": 405,
+            "x2": 260,
+            "y2": 930
         }
     },
     "allianceEvolutions": {
         "develop": "one",
         "combat": "two"
+    },
+    "allianceEvolutionsPriority": {
+        "develop": 1,
+        "combat": 4
     },
     "allianceEvolutionsPositions": {
         "one": [
@@ -851,6 +1110,46 @@
             "y": 555,
             "x1": 500,
             "y1": 680
+        }
+    ],
+    "duelOfQueensOpponentPositions": [
+        {
+            "x": 580,
+            "y": 410
+        },
+        {
+            "x": 580,
+            "y": 520
+        },
+        {
+            "x": 580,
+            "y": 625
+        },
+        {
+            "x": 580,
+            "y": 735
+        }
+    ],
+    "duelOfSpecialAntsOpponentPositions": [
+        {
+            "x": 580,
+            "y": 360
+        },
+        {
+            "x": 580,
+            "y": 470
+        },
+        {
+            "x": 580,
+            "y": 575
+        },
+        {
+            "x": 580,
+            "y": 685
+        },
+        {
+            "x": 580,
+            "y": 795
         }
     ],
     "termiteFarmsAndInsectNestsPositions": [
@@ -1103,6 +1402,20 @@
             "y": 535
         }
     ],
+    "forceEventNormalRewardsPositions": [
+        {
+            "x": 270,
+            "y": 990
+        },
+        {
+            "x": 270,
+            "y": 1070
+        },
+        {
+            "x": 270,
+            "y": 1145
+        }
+    ],
     "crystalMineLevelsPositions": [
         {
             "x": 575,
@@ -1255,18 +1568,77 @@
             "y": 1065
         }
     ],
-    "waterExoticPeasByHillsPositions": [
+    "VIPStorePlatesPositions": [
         {
-            "X": 519,
-            "Y": 551
+            "x": 95,
+            "y": 560
         },
         {
-            "X": 520,
-            "Y": 556
+            "x": 275,
+            "y": 560
         },
         {
-            "X": 515,
-            "Y": 551
+            "x": 450,
+            "y": 560
+        },
+        {
+            "x": 625,
+            "y": 560
+        },
+        {
+            "x": 95,
+            "y": 800
+        },
+        {
+            "x": 275,
+            "y": 800
+        },
+        {
+            "x": 450,
+            "y": 800
+        },
+        {
+            "x": 625,
+            "y": 800
+        },
+        {
+            "x": 95,
+            "y": 1035
+        },
+        {
+            "x": 275,
+            "y": 1035
+        },
+        {
+            "x": 450,
+            "y": 1035
+        },
+        {
+            "x": 625,
+            "y": 1035
         }
-    ]
+    ],
+    "VIPStorePlatesSequence": {
+        "7": [5, 5, 5, 5, 6, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10],
+        "8": [7, 7, 7, 7, 8, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12]
+    },
+    "storeBuyItems": {
+        "epopticFungiStore": [
+            "cell_fluid"
+        ],
+        "duelStore": [
+            "inducible_enzyme",
+            "germ"
+        ],
+        "mineStore": [
+            "dna",
+            "genetic_factor_i",
+            "genetic_factor_ii",
+            "genetic_factor_iii"
+        ],
+        "specialAntDuelStore": [
+            "hypha",
+            "fungus_nutrient_i"
+        ]
+    }
 }

@@ -6,7 +6,7 @@ from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
 from src.exceptions import AllUnitsAreBusy, NoMarchUnitScreen
 from src.logger import logger
 from src.settings import Settings
-from src.utils import Colors, THRESHOLD_DIVIDER
+from src.utils import Colors, THRESHOLD_DIVIDER, HeaderTemplates
 
 
 class HuntingBot(TheAntsBot):
@@ -100,13 +100,11 @@ class HuntingBot(TheAntsBot):
         if not Settings.check_enabled(settings):
             return
 
-        image = self.get_screenshot(settings, rectangle_name="marchUnitsHeading")
-        text = self.get_text_from_screenshot(image=image, settings=settings)
-        logger.debug(f"Extracted text from march unit heading: {text}")
-
-        if "March" not in text and "Unit" not in text:
+        image = self.get_screenshot(settings, rectangle_name="screenMenuHeading")
+        found_menu = self.find_template(settings, HeaderTemplates.MARCH_TROOPS, image=image)
+        if not found_menu:
             heading_is_gray = self.check_pixel_color(
-                image, settings, "marchUnitsHeadingColorPick", Colors.GRAY
+                image, settings, "screenMenuHeadingColorPick", Colors.GRAY
             )
             if heading_is_gray:
                 # If we stuck in the march unit screen, and it's blurred

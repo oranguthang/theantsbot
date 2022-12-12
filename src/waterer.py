@@ -4,7 +4,7 @@ from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
 from src.exceptions import UserWateringCompleted
 from src.logger import logger
 from src.settings import Settings
-from src.utils import THRESHOLD_DIVIDER, ImageHandler, Templates
+from src.utils import THRESHOLD_DIVIDER, CommonTemplates
 
 
 class WateringBot(TheAntsBot):
@@ -22,37 +22,6 @@ class WateringBot(TheAntsBot):
 
     def press_visit_another_alliance_anthill_icon(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "visitAnotherAllianceAnthillIcon", sleep_duration)
-
-    def do_water_by_coordinates(self):
-        # TODO: Not working properly
-        settings = Settings.load_settings()
-
-        if not Settings.check_enabled(settings):
-            return
-
-        self.press_world_button(settings)
-
-        positions = settings["waterExoticPeasByHillsPositions"]
-        for position in positions:
-            self.press_search_button(settings)
-            self.press_search_coords_button(settings)
-
-            self.press_location_and_type(settings, "searchCoordXField", position["X"], backspace_count=4)
-            self.press_back_button(settings)
-            sleep(settings[SLEEP_SHORT])
-
-            self.press_location_and_type(settings, "searchCoordYField", position["Y"], backspace_count=4)
-            self.press_back_button(settings)
-
-            self.press_search_coords_go_button(settings)
-            self.press_center_screen(settings)
-            self.press_visit_another_alliance_anthill_icon(settings)
-
-            self.press_find_exotic_pea_button(settings)
-            self.press_water_exotic_pea_button(settings)
-            self.press_return_from_anthill_button(settings)
-
-        self.press_world_button(settings)
 
     def do_water_in_alliance(self, watered_users, bar_num):
         settings = Settings.load_settings()
@@ -101,15 +70,17 @@ class WateringBot(TheAntsBot):
                             sleep(settings[SLEEP_MEDIUM])
 
                             # Scan profile bottom bar
-                            rectangle_name = "allianceMemberProfileBottomBar"
-                            image = self.get_screenshot(settings, rectangle_name=rectangle_name)
-                            rectangles = ImageHandler.match_template(image, Templates.VISIT_ANTHILL)
-                            if rectangles:
-                                self.press_position_by_inner_rectangle(settings, rectangle_name, rectangles[0],
-                                                                       sleep_duration=SLEEP_MEDIUM, multiplier=3)
+                            found_icon = self.find_and_press_template(
+                                settings, CommonTemplates.VISIT_ANTHILL, "allianceMemberProfileBottomBar",
+                                sleep_duration=SLEEP_MEDIUM, multiplier=3
+                            )
+                            if found_icon:
+                                found_exotic_pea = self.find_and_press_template(
+                                    settings, CommonTemplates.FIND_EXOTIC_PEA, "anotherAnthillFindExoticPeaIcon"
+                                )
+                                if found_exotic_pea:
+                                    self.press_water_exotic_pea_button(settings)
 
-                                self.press_find_exotic_pea_button(settings)
-                                self.press_water_exotic_pea_button(settings)
                                 self.press_return_from_anthill_button(settings)
 
                                 raise UserWateringCompleted

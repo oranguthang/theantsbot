@@ -1,5 +1,6 @@
 import os
 import uuid
+from enum import Enum
 
 from pytesseract import pytesseract, Output
 import cv2
@@ -25,9 +26,72 @@ class Colors:
     RED = "red"
 
 
-class Templates:
+class BaseTemplates(Enum):
+    def get_path(self):
+        if hasattr(self.__class__, "_folder_name"):
+            return os.path.join(self.__class__._folder_name.value, self.value)
+        else:
+            raise Exception(f"Class {self.__class__} should contain '_folder_name' value")
+
+
+class CommonTemplates(BaseTemplates):
+    _folder_name = ""
+
     CROSS = "cross_icon.png"
     VISIT_ANTHILL = "visit_anthill.png"
+    RECOMMENDED_ALLIANCE = "recommended_alliance.png"
+    WILD_HUNT = "wild_hunt.png"
+    THRIVING_ANTHILL = "thriving_anthill.png"
+    COLONY_LEADER = "colony_leader.png"
+    MASS_DEVELOPMENT = "mass_development.png"
+    PROJECT_GUARDIAN = "project_guardian.png"
+    GRANARY_ENRICHMENT = "granary_enrichment.png"
+    HELP = "help.png"
+    GIFTS = "gifts.png"
+    SOLDIER_ANTS = "soldier_ants.png"
+    SPEEDUP = "speedup.png"
+    HATCH_ANTS_SPEEDUP = "hatch_ants_speedup.png"
+    FIND_EXOTIC_PEA = "find_exotic_pea.png"
+    INSECT_STAR_UP = "insect_star_up.png"
+    CELL_FLUID = "cell_fluid.png"
+    CELL_NUCLEUS = "cell_nucleus.png"
+    GENETIC_FACTOR_I = "genetic_factor_i.png"
+    GENETIC_FACTOR_II = "genetic_factor_ii.png"
+    GENETIC_FACTOR_III = "genetic_factor_iii.png"
+    DNA = "DNA.png"
+    ADVANCED_DNA = "advanced_DNA.png"
+    GERM = "germ.png"
+    INDUCIBLE_ENZYME = "inducible_enzyme.png"
+    FUNGUS_NUTRIENT_I = "fungus_nutrient_i.png"
+    FUNGUS_NUTRIENT_II = "fungus_nutrient_ii.png"
+    HYPHA = "hypha.png"
+    SPECIAL_HYPHA = "special_hypha.png"
+    DUEL_STORE = "duel_store_icon.png"
+
+
+class HeaderTemplates(BaseTemplates):
+    _folder_name = "headers"
+
+    MARCH_TROOPS = "march_troops.png"
+    TROOP_CAMP = "troop_camp.png"
+    WORKER_ANTS = "worker_ants.png"
+
+
+class ButtonTemplates(BaseTemplates):
+    _folder_name = "buttons"
+
+    TRANSPORT_PAUSE = "transport_pause.png"
+    SPEEDUP = "speedup.png"
+    EXPLORE = "explore.png"
+    EXPLORE_CLAIM = "explore_claim.png"
+    BENEFITS_CLAIM = "benefits_claim.png"
+
+
+class EventTemplates(BaseTemplates):
+    _folder_name = "events"
+
+    FORCE_OF_TIDES = "force_of_tides.png"
+    VIP_STORE = "vip_store.png"
 
 
 class ExtractText:
@@ -135,6 +199,8 @@ class ImageHandler:
     @staticmethod
     def get_circles(image, hough_blur_radius=5, output_blur_radius=3, min_dist=50,
                     hough_param1=50, hough_param2=50, min_radius=20, max_radius=40, new_size=None):
+        image = ImageHandler.decode_image(image)
+
         img_output = cv2.medianBlur(image, output_blur_radius)
         img_output_gray = cv2.cvtColor(img_output, cv2.COLOR_BGR2GRAY)
 
@@ -177,11 +243,12 @@ class ImageHandler:
         return results
 
     @staticmethod
-    def match_template(img_rgb, template_name, threshold=0.8):
+    def match_template(img_rgb, template, threshold=0.8):
+        img_rgb = ImageHandler.decode_image(img_rgb)
         # Convert image to grayscale
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
         # Read the template
-        template = cv2.imread(os.path.join("data", template_name), 0)
+        template = cv2.imread(os.path.join("data", template.get_path()), 0)
         # Store width and height of template in w and h
         w, h = template.shape[::-1]
         # Perform match operations
