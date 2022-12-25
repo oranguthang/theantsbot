@@ -5,11 +5,11 @@ from multiprocessing import Pool, Manager
 from models.task_icons.model import TaskIconsModel
 from src.base import DeviceHandler, Action
 from src.gatherer import GatheringBot
-from src.hunter import HuntingBot
+from src.hunter import HuntingBot, PangolinBot, GroundhogBot
 from src.waterer import WateringBot
 from src.collector import (MorningBonusesCollectingBot, EveningBonusesCollectingBot,
-                           ForceEventBonusesCollectingBot, TasksBot, HatchingBot,
-                           HatchingSpecialAntsBot, StoreBot, VIPStoreBot)
+                           ForceEventBonusesCollectingBot, TasksBot,
+                           HatchingSpecialAntsBot, VIPStoreBot)
 from src.logger import logger
 from src.settings import Settings
 
@@ -51,12 +51,12 @@ def main():
                 bot_class = TasksBot
             elif action == Action.ACTION_HATCH_SPECIAL:
                 bot_class = HatchingSpecialAntsBot
-            elif action == Action.ACTION_HATCH:
-                bot_class = HatchingBot
             elif action == Action.ACTION_VIP_STORE:
                 bot_class = VIPStoreBot
-            elif action == Action.ACTION_STORE:
-                bot_class = StoreBot
+            elif action == Action.ACTION_PANGOLIN:
+                bot_class = PangolinBot
+            elif action == Action.ACTION_GROUNDHOG:
+                bot_class = GroundhogBot
             elif action == Action.ACTION_GATHER:
                 pool_size = settings["gatherPoolSize"]
                 bot_class = GatheringBot
@@ -73,6 +73,7 @@ def main():
 
             manager = Manager()
             shared_data = manager.dict()
+            shared_data["watered_users"] = manager.dict()
             shared_data["models"] = manager.dict()
             shared_data["models"]["task_icons"] = task_icons_model
 

@@ -21,9 +21,9 @@ class Action:
     ACTION_FORCE_EVENT = "force"
     ACTION_TASKS = "tasks"
     ACTION_HATCH_SPECIAL = "hatch_special"
-    ACTION_HATCH = "hatch"
     ACTION_VIP_STORE = "vip_store"
-    ACTION_STORE = "store"
+    ACTION_PANGOLIN = "pangolin"
+    ACTION_GROUNDHOG = "groundhog"
 
 
 class ProcessHandler:
@@ -298,6 +298,9 @@ class TheAntsBot:
             if found_icon:
                 self.press_back_button(settings)
             self.press_position(settings, "allianceMainButton", sleep_duration=SLEEP_SHORT)
+
+    def press_alliance_events_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "allianceEventsButton", sleep_duration)
 
     def press_close_banner_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.find_and_press_template(settings, CommonTemplates.CROSS, "bannerCrossIcon", sleep_duration=sleep_duration)

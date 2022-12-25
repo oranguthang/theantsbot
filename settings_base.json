@@ -21,6 +21,14 @@
     "disabledFarms": [2,3,4,5],
     "duelOfQueensEnabled": true,
     "duelOfSpecialAntsEnabled": true,
+    "epopticFungiStoreEnabled": true,
+    "duelStoreEnabled": true,
+    "mineStoreEnabled": true,
+    "specialAntDuelStoreEnabled": true,
+    "defaultFormationNumber": 1,
+    "guardiansFormationNumber": 2,
+    "shootersFormationNumber": 3,
+    "carriersFormationNumber": 1,
     "hatchAnts": true,
     "hatchSpecialAnts": true,
     "hatchInsects": true,
@@ -227,6 +235,18 @@
             "x": 50,
             "y": 50
         },
+        "marchTroopsIcon": {
+            "x": 45,
+            "y": 200
+        },
+        "marchTroopsSwitchFormationButton": {
+            "x": 360,
+            "y": 1210
+        },
+        "marchTroopsSwitchFormationConfirmButton": {
+            "x": 200,
+            "y": 775
+        },
         "marchButton": {
             "x": 540,
             "y": 1210
@@ -242,6 +262,38 @@
         "marchUnitBackOkButton": {
             "x": 360,
             "y": 765
+        },
+        "inventoryButton": {
+            "x": 55,
+            "y": 1230
+        },
+        "inventoryResourcesButton": {
+            "x": 70,
+            "y": 115
+        },
+        "inventoryBuffButton": {
+            "x": 360,
+            "y": 115
+        },
+        "inventoryRewardsButton": {
+            "x": 505,
+            "y": 115
+        },
+        "inventoryOtherButton": {
+            "x": 645,
+            "y": 115
+        },
+        "inventoryUseResourceButton": {
+            "x": 360,
+            "y": 775
+        },
+        "inventoryUseItemButton": {
+            "x": 360,
+            "y": 805
+        },
+        "inventoryUseExpiredItemButton": {
+            "x": 360,
+            "y": 880
         },
         "allianceButton": {
             "x": 500,
@@ -262,6 +314,10 @@
         "allianceRecommendedButton": {
             "x": 620,
             "y": 240
+        },
+        "allianceEventsButton": {
+            "x": 600,
+            "y": 925
         },
         "allianceEvolutionButton": {
             "x": 600,
@@ -375,12 +431,8 @@
             "x": 675,
             "y": 305
         },
-        "packShopOneTimeOfferButton": {
+        "packShopBasicPosition": {
             "x": 70,
-            "y": 175
-        },
-        "packShopTimeLimitedOfferButton": {
-            "x": 205,
             "y": 175
         },
         "packShopFreeBonusButton": {
@@ -734,6 +786,34 @@
         "todoListLeftTab": {
             "x": 135,
             "y": 330
+        },
+        "pangolinChallengeButton": {
+            "x": 585,
+            "y": 1215
+        },
+        "pangolinLocation": {
+            "x": 360,
+            "y": 535
+        },
+        "pangolinInvadeIcon": {
+            "x": 360,
+            "y": 645
+        },
+        "groundhogLocation": {
+            "x": 360,
+            "y": 580
+        },
+        "groundhogInvadeIcon": {
+            "x": 360,
+            "y": 700
+        },
+        "raspberryUseConfirmButton": {
+            "x": 220,
+            "y": 770
+        },
+        "strongestWarzoneGoButton": {
+            "x": 360,
+            "y": 1205
         }
     },
     "rectangles": {
@@ -852,10 +932,10 @@
             "w": 510
         },
         "hatchNestIconsArea": {
-            "x": 115,
+            "x": 110,
             "y": 655,
             "h": 330,
-            "w": 480
+            "w": 500
         },
         "eventsScreen": {
             "x": 0,
@@ -880,14 +960,44 @@
             "y": 500,
             "h": 700,
             "w": 270
+        },
+        "inventoryItemsScreen": {
+            "x": 0,
+            "y": 150,
+            "h": 1100,
+            "w": 720
+        },
+        "alertsScreenArea": {
+            "x": 0,
+            "y": 300,
+            "h": 700,
+            "w": 720
+        },
+        "queenIconsArea": {
+            "x": 120,
+            "y": 645,
+            "h": 225,
+            "w": 480
+        },
+        "anthillBuffScreen": {
+            "x": 0,
+            "y": 85,
+            "h": 1100,
+            "w": 720
         }
     },
     "swipes": {
-        "swipeMarchScreen": {
+        "swipeMarchScreenDown": {
             "x1": 360,
             "y1": 1000,
             "x2": 360,
             "y2": 300
+        },
+        "swipeMarchScreenUp": {
+            "x1": 360,
+            "y1": 420,
+            "x2": 360,
+            "y2": 1100
         },
         "swipeAllianceMembers": {
             "x1": 360,
@@ -978,6 +1088,12 @@
             "y1": 780,
             "x2": 450,
             "y2": 780
+        },
+        "swipeInventorySlider": {
+            "x1": 140,
+            "y1": 675,
+            "x2": 470,
+            "y2": 675
         },
         "swipeBenefitsRewardsDown": {
             "x1": 360,
@@ -1616,6 +1732,24 @@
         {
             "x": 625,
             "y": 1035
+        }
+    ],
+    "troopFormationsPositions": [
+        {
+            "x": 435,
+            "y": 345
+        },
+        {
+            "x": 510,
+            "y": 345
+        },
+        {
+            "x": 585,
+            "y": 345
+        },
+        {
+            "x": 665,
+            "y": 345
         }
     ],
     "VIPStorePlatesSequence": {

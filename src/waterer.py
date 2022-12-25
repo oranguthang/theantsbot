@@ -1,3 +1,4 @@
+import random
 from time import sleep
 
 from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
@@ -23,7 +24,7 @@ class WateringBot(TheAntsBot):
     def press_visit_another_alliance_anthill_icon(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "visitAnotherAllianceAnthillIcon", sleep_duration)
 
-    def do_water_in_alliance(self, watered_users, bar_num):
+    def do_water_in_alliance(self, watered_users, bar_num, shared):
         settings = Settings.load_settings()
 
         if not Settings.check_enabled(settings):
@@ -57,6 +58,12 @@ class WateringBot(TheAntsBot):
                             current_users.add(text_lower)
                             found_new_current_user = True
 
+                            if text_lower not in shared["watered_users"]:
+                                shared["watered_users"][text_lower] = False
+
+                            if shared["watered_users"][text_lower] is True:
+                                continue
+
                             if text_lower in watered_users:
                                 continue
 
@@ -80,6 +87,8 @@ class WateringBot(TheAntsBot):
                                 )
                                 if found_exotic_pea:
                                     self.press_water_exotic_pea_button(settings)
+                                else:
+                                    shared["watered_users"][text_lower] = True
 
                                 self.press_return_from_anthill_button(settings)
 
@@ -104,8 +113,11 @@ class WateringBot(TheAntsBot):
     def run(self, shared):
         logger.info(f"Ready to run the watering bot on {self.device.name}")
 
+        # Wait random seconds to prevent race of workers
+        sleep(random.randint(1, 30))
+
         watered_users = set()
         for bar_num in range(4):
-            self.do_water_in_alliance(watered_users, bar_num)
+            self.do_water_in_alliance(watered_users, bar_num, shared)
 
         logger.info(f"Total watered users: {watered_users}")

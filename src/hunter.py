@@ -1,12 +1,21 @@
 import itertools
 import re
+from datetime import datetime
 from time import sleep
 
-from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM
+from src.base import TheAntsBot, SLEEP_SHORT, SLEEP_MEDIUM, SLEEP_LONG
+from src.collector import MorningBonusesCollectingBot
 from src.exceptions import AllUnitsAreBusy, NoMarchUnitScreen
 from src.logger import logger
 from src.settings import Settings
-from src.utils import Colors, THRESHOLD_DIVIDER, HeaderTemplates
+from src.utils import Colors, THRESHOLD_DIVIDER, HeaderTemplates, EventTemplates, AlertTemplates
+
+
+class SoldierTypes:
+    GUARDIANS = "guardians"
+    SHOOTERS = "shooters"
+    CARRIERS = "carriers"
+    DEFAULT = "default"
 
 
 class HuntingBot(TheAntsBot):
@@ -33,12 +42,29 @@ class HuntingBot(TheAntsBot):
     def press_attack_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "attackButton", sleep_duration)
 
+    def press_march_troops_icon(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "marchTroopsIcon", sleep_duration)
+
+    def press_march_troops_switch_formation_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "marchTroopsSwitchFormationButton", sleep_duration)
+
+    def press_march_troops_switch_formation_confirm_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "marchTroopsSwitchFormationConfirmButton", sleep_duration)
+
     def swipe_back_search_screen(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.swipe(settings, "swipeBackHuntGatherScreen", duration_ms=1000)
         sleep(settings[sleep_duration])
 
     def swipe_search_screen(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.swipe(settings, "swipeHuntGatherScreen", duration_ms=1000)
+        sleep(settings[sleep_duration])
+
+    def swipe_march_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeMarchScreenDown", duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def swipe_march_screen_up(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeMarchScreenUp", duration_ms=500)
         sleep(settings[sleep_duration])
 
     def recall_march_units(self, settings):
@@ -93,6 +119,59 @@ class HuntingBot(TheAntsBot):
                 self.press_search_plus_button(settings)
             for _ in range(15 - config["level"]):
                 self.press_search_minus_button(settings)
+
+    def set_formation_type(self, settings, soldiers_type):
+        if soldiers_type is None:
+            return
+
+        self.press_march_troops_icon(settings)
+        formation_number = settings[f"{soldiers_type}FormationNumber"]
+
+        number_position = settings["troopFormationsPositions"][formation_number - 1]
+        self.press_location(number_position["x"], number_position["y"])
+        sleep(settings[SLEEP_SHORT])
+
+        while True:
+            self.press_march_troops_switch_formation_button(settings)
+            found_alert = self.find_template(settings, AlertTemplates.CANNOT_SWITCH_FORMATION,
+                                             rectangle_name="alertsScreenArea", threshold=0.9)
+            if found_alert:
+                self.press_back_button(settings, sleep_duration=SLEEP_LONG)
+            else:
+                break
+
+        self.press_march_troops_switch_formation_confirm_button(settings)
+
+        self.press_back_button(settings)
+
+    def march_pro_troop(self, settings):
+        image = self.get_screenshot(settings, rectangle_name="screenMenuHeading")
+        found_menu = self.find_template(settings, HeaderTemplates.MARCH_TROOPS, image=image)
+        if not found_menu:
+            # Insufficient attack times or something is wrong
+            return False
+
+        self.swipe_march_screen_up(settings)
+
+        troop_number = 1
+        self.press_location(
+            settings["positions"]["centerScreen"]["x"],
+            settings["marchScreenTopBarHeight"]
+            + settings["marchUnitHeight"] * troop_number
+            - settings["marchUnitHeight"] / 3
+        )
+        sleep(settings[SLEEP_SHORT])
+
+        button_is_gray = True
+        while button_is_gray:
+            image = self.get_screenshot(settings)
+            button_is_gray = self.check_pixel_color(image, settings, "marchButtonColorPick", Colors.GRAY)
+            if button_is_gray:
+                sleep(settings[SLEEP_LONG])
+
+        logger.info(f"Pro Troop is ready, go!")
+        self.press_march_button(settings)
+        return True
 
     def analyze_march_unit(self, is_swiped=False, is_marching_before_swipe=False, mode="hunt"):
         settings = Settings.load_settings()
@@ -167,8 +246,7 @@ class HuntingBot(TheAntsBot):
                         self.is_finished = True
                         logger.info(f"The hunt on {self.device.name} is finished!")
             else:
-                self.swipe(settings, "swipeMarchScreen", duration_ms=500)
-                sleep(settings[SLEEP_SHORT])
+                self.swipe_march_screen_down(settings)
                 self.analyze_march_unit(is_swiped=True, is_marching_before_swipe=is_marching, mode=mode)
 
     def do_hunt(self):
@@ -243,3 +321,103 @@ class HuntingBot(TheAntsBot):
 
             if all([bot.is_finished for bot in bots]):
                 break
+
+
+class PangolinBot(MorningBonusesCollectingBot, HuntingBot):
+    def press_pangolin_challenge_button(self, settings, sleep_duration=SLEEP_MEDIUM, multiplier=3):
+        self.press_position(settings, "pangolinChallengeButton", sleep_duration, multiplier=multiplier)
+
+    def press_pangolin_location(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "pangolinLocation", sleep_duration)
+
+    def press_pangolin_invade_icon(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "pangolinInvadeIcon", sleep_duration)
+
+    def do_pangolin(self):
+        settings = Settings.load_settings()
+
+        if not Settings.check_enabled(settings):
+            return
+
+        self.press_alliance_button(settings)
+        self.press_alliance_events_button(settings)
+        found_event = self.find_event(settings, [EventTemplates.PANGOLIN], press_events_button=False)
+        if not found_event:
+            self.press_back_button(settings)
+            self.press_back_button(settings)
+            return
+
+        self.press_pangolin_challenge_button(settings)
+
+        weekday = datetime.today().weekday()
+        soldier_types_by_weekdays = {
+            2: SoldierTypes.GUARDIANS,
+            3: SoldierTypes.SHOOTERS,
+            4: SoldierTypes.CARRIERS,
+        }
+        self.set_formation_type(settings, soldier_types_by_weekdays.get(weekday))
+
+        for _ in range(15):
+            self.press_pangolin_location(settings)
+            self.press_pangolin_invade_icon(settings)
+
+            # Use only Pro Troop to attack pangolin
+            success = self.march_pro_troop(settings)
+            if not success:
+                break
+
+        # Return formation type to default
+        self.set_formation_type(settings, SoldierTypes.DEFAULT)
+
+        # Go home
+        self.press_world_button(settings)
+
+    def run(self, shared):
+        logger.info(f"Ready to run the pangolin bot on {self.device.name}")
+
+        self.do_pangolin()
+
+
+class GroundhogBot(MorningBonusesCollectingBot, HuntingBot):
+    def press_groundhog_location(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "groundhogLocation", sleep_duration)
+
+    def press_groundhog_invade_icon(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "groundhogInvadeIcon", sleep_duration)
+
+    def do_groundhog(self):
+        settings = Settings.load_settings()
+
+        if not Settings.check_enabled(settings):
+            return
+
+        self.press_world_button(settings)
+        self.press_world_button(settings)
+
+        self.get_advanced_raspberry_bonus(settings)
+        found_event = self.find_event(settings, [EventTemplates.STRONGEST_WARZONE])
+        if not found_event:
+            self.press_back_button(settings)
+
+        self.press_strongest_warzone_go_button(settings, sleep_duration=SLEEP_MEDIUM, multiplier=3)
+        self.set_formation_type(settings, SoldierTypes.SHOOTERS)
+
+        for _ in range(20):
+            self.press_groundhog_location(settings)
+            self.press_groundhog_invade_icon(settings)
+
+            # Use only Pro Troop to attack groundhog
+            success = self.march_pro_troop(settings)
+            if not success:
+                break
+
+        # Return formation type to default
+        self.set_formation_type(settings, SoldierTypes.DEFAULT)
+
+        # Go home
+        self.press_world_button(settings)
+
+    def run(self, shared):
+        logger.info(f"Ready to run the groundhog bot on {self.device.name}")
+
+        self.do_groundhog()

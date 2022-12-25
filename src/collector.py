@@ -63,12 +63,6 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def press_pack_shop_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "packShopButton", sleep_duration)
 
-    def press_pack_shop_one_time_offer_button(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "packShopOneTimeOfferButton", sleep_duration)
-
-    def press_pack_shop_time_limited_offer_button(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "packShopTimeLimitedOfferButton", sleep_duration)
-
     def press_pack_shop_free_bonus_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "packShopFreeBonusButton", sleep_duration)
 
@@ -99,7 +93,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
     def press_termite_farm_breed_button(self, settings, sleep_duration=SLEEP_SHORT):
         self.press_position(settings, "hatchInsectsBreedFodderButton", sleep_duration)
 
-    def press_hatch_insects_hatch_button(self, settings, sleep_duration=SLEEP_SHORT):
+    def press_hatch_insects_hatch_button(self, settings, sleep_duration=SLEEP_MEDIUM):
         self.press_position(settings, "hatchInsectsHatchButton", sleep_duration)
 
     def press_hatch_insects_free_space_bottom(self, settings, sleep_duration=SLEEP_SHORT):
@@ -118,6 +112,22 @@ class MorningBonusesCollectingBot(TheAntsBot):
         else:
             position_name = "insectHabitatInsectsIcon"
         self.press_position(settings, position_name, sleep_duration)
+
+    def press_strongest_warzone_go_button(self, settings, sleep_duration=SLEEP_SHORT, multiplier=1):
+        self.press_position(settings, "strongestWarzoneGoButton", sleep_duration, multiplier=multiplier)
+
+    def press_inventory_button(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "inventoryButton", sleep_duration)
+
+    def press_store_left_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "storeLeftTab", sleep_duration)
+
+    def press_store_right_tab(self, settings, sleep_duration=SLEEP_SHORT):
+        self.press_position(settings, "storeLeftTab", sleep_duration)
+
+    def swipe_store_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
+        self.swipe(settings, "swipeStoreScreenDown", duration_ms=500)
+        sleep(settings[sleep_duration])
 
     def swipe_pack_shop_heading(self, settings, sleep_duration=SLEEP_SHORT):
         self.swipe(settings, "swipePackShopHeading", duration_ms=500)
@@ -182,8 +192,20 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.swipe(settings, "swipeTodoListUp", duration_ms=1000)
         sleep(settings[sleep_duration])
 
-    def find_event(self, settings, event_templates):
-        self.press_events_button(settings)
+    def swipe_inventory_slider(self, settings, sleep_duration=SLEEP_SHORT):
+        swipe_name = "swipeInventorySlider"
+        # Reset slider to start position
+        self.press_location(
+            settings["swipes"][swipe_name]["x1"],
+            settings["swipes"][swipe_name]["y1"],
+        )
+        sleep(settings[sleep_duration])
+        self.swipe(settings, swipe_name, duration_ms=500)
+        sleep(settings[sleep_duration])
+
+    def find_event(self, settings, event_templates, press_events_button=True):
+        if press_events_button:
+            self.press_events_button(settings)
 
         for _ in range(2):
             self.swipe_events_screen_up(settings)
@@ -191,7 +213,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
         found_event = False
         for _ in range(3):
             for template in event_templates:
-                found_event = self.find_and_press_template(settings, template, "eventsScreen")
+                found_event = self.find_and_press_template(settings, template, "eventsScreen", threshold=0.9)
                 if found_event:
                     break
             if found_event:
@@ -220,6 +242,79 @@ class MorningBonusesCollectingBot(TheAntsBot):
             self.press_back_button(settings)
 
         return found_task
+
+    def get_advanced_raspberry_bonus(self, settings):
+        self.press_center_screen(settings)
+
+        found = self.find_and_press_template(settings, CommonTemplates.ANTHILL_BUFF_ICON, "queenIconsArea")
+        if not found:
+            return
+
+        found = self.find_and_press_template(settings, CommonTemplates.POINTS_BONUS, "anthillBuffScreen")
+        if not found:
+            self.press_back_button(settings)
+            return
+
+        found = self.find_and_press_template(settings, CommonTemplates.ADVANCED_RASPBERRY_BONUS,
+                                             "anthillBuffScreen", shift_x=545)
+        if not found:
+            self.press_back_button(settings)
+            self.press_back_button(settings)
+            return
+
+        self.press_position(settings, "raspberryUseConfirmButton", sleep_duration=SLEEP_SHORT)
+        self.press_back_button(settings)
+        self.press_back_button(settings)
+
+    def do_store(self, settings, store_name):
+        if not settings[f"{store_name}Enabled"]:
+            return
+
+        items_mapping = {
+            "cell_fluid": CommonTemplates.CELL_FLUID,
+            "cell_nucleus": CommonTemplates.CELL_NUCLEUS,
+            "genetic_factor_i": CommonTemplates.GENETIC_FACTOR_I,
+            "genetic_factor_ii": CommonTemplates.GENETIC_FACTOR_II,
+            "genetic_factor_iii": CommonTemplates.GENETIC_FACTOR_III,
+            "dna": CommonTemplates.DNA,
+            "advanced_dna": CommonTemplates.ADVANCED_DNA,
+            "germ": CommonTemplates.GERM,
+            "inducible_enzyme": CommonTemplates.INDUCIBLE_ENZYME,
+            "fungus_nutrient_i": CommonTemplates.FUNGUS_NUTRIENT_I,
+            "fungus_nutrient_ii": CommonTemplates.FUNGUS_NUTRIENT_II,
+            "hypha": CommonTemplates.HYPHA,
+            "special_hypha": CommonTemplates.SPECIAL_HYPHA
+        }
+
+        icon_name = f"{store_name}Icon"
+        self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
+
+        if store_name in ("epopticFungiStore", "duelStore"):
+            self.press_store_left_tab(settings)
+
+        for _ in range(2):
+            self.swipe_store_screen_down(settings)
+
+        item_names = settings["storeBuyItems"][store_name]
+        for item_name in item_names:
+            item_template = items_mapping[item_name]
+            found = self.find_and_press_template(settings, item_template, "storeItemsArea", threshold=0.8, shift_y=170)
+            if found:
+                self.press_position(settings, "storeItemClaimButton", sleep_duration=SLEEP_SHORT)
+                self.press_position(settings, "storeItemClaimConfirmButton", sleep_duration=SLEEP_SHORT)
+                self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
+
+    def process_stores(self, settings):
+        found_task = self.find_todo_task(settings, CommonTemplates.DUEL_STORE)
+        if not found_task:
+            self.press_back_button(settings)
+            return
+
+        self.do_store(settings, "epopticFungiStore")
+        self.do_store(settings, "duelStore")
+        self.do_store(settings, "mineStore")
+        self.do_store(settings, "specialAntDuelStore")
+        self.press_back_button(settings)
 
     def do_duel_deploy_troops(self, settings, press_back_button=True):
         image = self.get_screenshot(settings)
@@ -547,43 +642,47 @@ class MorningBonusesCollectingBot(TheAntsBot):
         for _ in range(3):
             self.swipe_pack_shop_heading(settings)
 
-        self.press_pack_shop_one_time_offer_button(settings)
-        self.swipe_pack_shop_content(settings)
-        self.press_pack_shop_free_bonus_button(settings)
-        self.press_pack_shop_free_space_bottom(settings)
-
-        self.press_pack_shop_time_limited_offer_button(settings)
-        self.swipe_pack_shop_content(settings)
-        self.press_pack_shop_free_bonus_button(settings)
-        self.press_pack_shop_free_space_bottom(settings)
-
-        rewards_positions = settings["packShopTimeLimitedOfferProgressRewards"]
-        for position in rewards_positions:
-            # Press the reward
-            self.press_location(
-                position["x"],
-                position["y"]
-            )
-            sleep(settings[SLEEP_MEDIUM])
-            self.press_back_button(settings)
-
         # Click all other boxes to clear red dots with alerts
-        basic_position = settings["positions"]["packShopOneTimeOfferButton"]
-        mutation_positions = settings["packShopMutationPositions"]
-        for start_position in (2, 0, 0):
-            for i in range(start_position, 5):
-                self.press_location(
-                    basic_position["x"] + 135 * i,
-                    basic_position["y"]
-                )
-                sleep(settings[SLEEP_SHORT])
-                # TODO: Fix with icon recognition
-                # Dirty hack - we don't know the position of mutation packs and try to click everywhere
+        basic_position = settings["positions"]["packShopBasicPosition"]
+        for _ in range(3):
+            found = self.find_and_press_template(settings, CommonTemplates.ONE_TIME_OFFER, "benefitsTopBar")
+            if found:
+                self.swipe_pack_shop_content(settings)
+                self.press_pack_shop_free_bonus_button(settings)
+                self.press_pack_shop_free_space_bottom(settings)
+
+            found = self.find_and_press_template(settings, CommonTemplates.TIME_LIMITED_OFFER, "benefitsTopBar")
+            if found:
+                self.swipe_pack_shop_content(settings)
+                self.press_pack_shop_free_bonus_button(settings)
+                self.press_pack_shop_free_space_bottom(settings)
+
+                rewards_positions = settings["packShopTimeLimitedOfferProgressRewards"]
+                for position in rewards_positions:
+                    # Press the reward
+                    self.press_location(
+                        position["x"],
+                        position["y"]
+                    )
+                    sleep(settings[SLEEP_MEDIUM])
+                    self.press_back_button(settings)
+
+            found = self.find_and_press_template(settings, CommonTemplates.MUTATION_OFFER, "benefitsTopBar")
+            if found:
+                mutation_positions = settings["packShopMutationPositions"]
                 for position in mutation_positions:
                     self.press_location(
                         position["x"],
                         position["y"]
                     )
+
+            for i in range(0, 5):
+                self.press_location(
+                    basic_position["x"] + 135 * i,
+                    basic_position["y"]
+                )
+                sleep(settings[SLEEP_SHORT])
+
             self.swipe_pack_shop_heading_right(settings)
 
         self.press_back_button(settings)
@@ -625,7 +724,8 @@ class MorningBonusesCollectingBot(TheAntsBot):
 
         found_speedup = self.find_template(settings, CommonTemplates.SPEEDUP, "troopCampIconsArea")
         if not found_speedup:
-            found_icon = self.find_and_press_template(settings, CommonTemplates.SOLDIER_ANTS, "troopCampIconsArea")
+            found_icon = self.find_and_press_template(settings, CommonTemplates.SOLDIER_ANTS, "troopCampIconsArea",
+                                                      sleep_duration=SLEEP_MEDIUM, multiplier=2)
             if found_icon:
                 found_header = self.find_template(settings, HeaderTemplates.TROOP_CAMP, "screenMenuHeading")
                 if found_header:
@@ -662,6 +762,8 @@ class MorningBonusesCollectingBot(TheAntsBot):
             return
         config = settings["farmHatchingConfig"][str(self.device.number)]
 
+        # Need to process, because could accidentally click them
+        self.process_help_and_gifts(settings)
         hatching_nests = settings["hatchNestPositions"]
         for nest_position in hatching_nests:
             # Press nest location
@@ -782,7 +884,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
 
             # Press hatch icon
             self.press_location(position["x1"], position["y1"])
-            sleep(settings[SLEEP_SHORT])
+            sleep(settings[SLEEP_MEDIUM])
             self.press_hatch_insects_hatch_button(settings)
 
             is_collected_insect = self.find_template(settings, CommonTemplates.INSECT_STAR_UP, "insectScreenBottomBar")
@@ -824,6 +926,87 @@ class MorningBonusesCollectingBot(TheAntsBot):
             if not found:
                 break
             self.press_start_exploration_button(settings)
+
+        self.press_back_button(settings)
+
+    def process_inventory_items(self, settings, tab_name, use_button_position, items_list):
+        rectangle_name = "inventoryItemsScreen"
+        tab_position = f"{tab_name}Button"
+        self.press_position(settings, tab_position, SLEEP_SHORT)
+
+        # The same pattern could match several times
+        item_idx = 0
+        while item_idx < len(items_list):
+            item_template = items_list[item_idx]
+
+            shift_x = shift_y = 0
+            button_template = ButtonTemplates.ITEM_USE
+            if item_template == CommonTemplates.NORMAL_RASPBERRY:
+                button_template = ButtonTemplates.ITEM_REDEEM
+            elif item_template == CommonTemplates.EXPIRED_ITEM:
+                button_template = ButtonTemplates.ITEM_BATCH_USE
+                shift_x = -50
+                shift_y = 50
+
+            found = self.find_and_press_template(settings, item_template, rectangle_name,
+                                                 threshold=0.8, shift_x=shift_x, shift_y=shift_y)
+            if not found:
+                item_idx += 1
+                continue
+
+            found_button = self.find_and_press_template(settings, button_template, rectangle_name, threshold=0.9)
+            if not found_button:
+                continue
+
+            # For raspberry need to click the button twice
+            if item_template == CommonTemplates.NORMAL_RASPBERRY:
+                # Need to redeem raspberry only once
+                item_idx += 1
+                self.press_position(settings, use_button_position, SLEEP_SHORT)
+
+            # Resources, credits and expired items are fully selected by default
+            if tab_name != "inventoryResources" \
+                    and item_template not in (CommonTemplates.CREDITS, CommonTemplates.EXPIRED_ITEM):
+                self.swipe_inventory_slider(settings)
+
+            if item_template == CommonTemplates.EXPIRED_ITEM:
+                # Expired items have different use-button position
+                self.press_position(settings, "inventoryUseExpiredItemButton", SLEEP_SHORT)
+            else:
+                self.press_position(settings, use_button_position, SLEEP_SHORT)
+
+            # And the same story to close the window
+            if item_template == CommonTemplates.NORMAL_RASPBERRY:
+                self.press_position(settings, tab_position, SLEEP_SHORT)
+            self.press_position(settings, tab_position, SLEEP_SHORT)
+
+    def process_inventory(self, settings):
+        use_resource_button = "inventoryUseResourceButton"
+        use_item_button = "inventoryUseItemButton"
+        self.press_inventory_button(settings)
+
+        self.process_inventory_items(settings, "inventoryResources", use_resource_button, [
+            CommonTemplates.DIAMONDS_TINY,
+            CommonTemplates.DIAMONDS_SMALL,
+            CommonTemplates.DIAMONDS_MEDIUM,
+            CommonTemplates.DIAMONDS_BIG,
+        ])
+        self.process_inventory_items(settings, "inventoryBuff", use_item_button, [
+            CommonTemplates.NORMAL_RASPBERRY,
+        ])
+        self.process_inventory_items(settings, "inventoryRewards", use_item_button, [
+            CommonTemplates.CHEST_OF_RSS,
+            CommonTemplates.DUEL_OF_QUEENS_CHEST,
+            CommonTemplates.CELL_LUCKY_PACK_II,
+            CommonTemplates.CELL_LUCKY_PACK_III,
+            CommonTemplates.INSECT_EGG,
+            CommonTemplates.SPECIAL_ANTS_LUCKY_PACK,
+        ])
+        self.process_inventory_items(settings, "inventoryOther", use_item_button, [
+            CommonTemplates.CREDITS,
+            CommonTemplates.INSECT_REMAIN,
+            CommonTemplates.EXPIRED_ITEM,
+        ])
 
         self.press_back_button(settings)
 
@@ -920,9 +1103,11 @@ class MorningBonusesCollectingBot(TheAntsBot):
             return
 
         self.press_close_banner_button(settings)
+        self.press_world_button(settings)
+        self.press_world_button(settings)
+
         self.process_help_and_gifts(settings)
         self.explore(settings)
-        self.do_tasks(settings, shared["models"]["task_icons"])
         self.process_resource_factory(settings)
         self.fill_leaf_cutters(settings)
         self.fill_feeding_ground(settings)
@@ -932,6 +1117,7 @@ class MorningBonusesCollectingBot(TheAntsBot):
         self.mutate_ants(settings)
         self.hatch_ants(settings)
         self.hatch_insects(settings)
+        self.do_tasks(settings, shared["models"]["task_icons"])
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
@@ -1017,19 +1203,24 @@ class EveningBonusesCollectingBot(MorningBonusesCollectingBot):
             return
 
         self.press_close_banner_button(settings)
+        self.press_world_button(settings)
+        self.press_world_button(settings)
+
         self.process_help_and_gifts(settings)
         self.explore(settings)
-        self.do_tasks(settings, shared["models"]["task_icons"])
         self.get_benefits_bonuses(settings)
         self.process_resource_factory(settings)
         self.fill_leaf_cutters(settings)
         self.fill_feeding_ground(settings)
-        self.donate_to_evolution(settings, donate_diamonds=False)
+        self.donate_to_evolution(settings)
         self.mutate_ants(settings)
         self.hatch_ants(settings)
         self.claim_rewards(settings)
         self.read_mail(settings)
         self.hatch_insects(settings)
+        self.do_tasks(settings, shared["models"]["task_icons"])
+        self.process_stores(settings)
+        self.process_inventory(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
@@ -1130,7 +1321,10 @@ class ForceEventBonusesCollectingBot(MorningBonusesCollectingBot):
         if not Settings.check_enabled(settings):
             return
 
-        found_event = self.find_event(settings, [EventTemplates.FORCE_OF_TIDES])
+        found_event = self.find_event(settings, [
+            EventTemplates.FORCE_OF_TIDES,
+            EventTemplates.FORCE_OF_DESERT,
+        ])
         if not found_event:
             return
 
@@ -1151,8 +1345,13 @@ class TasksBot(MorningBonusesCollectingBot):
 
         self.press_close_banner_button(settings)
         self.process_help_and_gifts(settings)
+        self.explore(settings)
         self.do_tasks(settings, shared["models"]["task_icons"])
+        self.process_resource_factory(settings)
         self.check_and_hatch_free_special_ant(settings)
+        self.donate_to_evolution(settings)
+        self.mutate_ants(settings)
+        self.hatch_ants(settings)
         self.hatch_insects(settings)
 
     def run(self, shared):
@@ -1188,26 +1387,8 @@ class HatchingSpecialAntsBot(MorningBonusesCollectingBot):
         if not Settings.check_enabled(settings):
             return
 
+        self.get_advanced_raspberry_bonus(settings)
         self.hatch_special_ants_mass(settings)
-
-    def run(self, shared):
-        logger.info(f"Ready to run the collecting bot on {self.device.name}")
-
-        self.do_collect(shared)
-
-
-class HatchingBot(MorningBonusesCollectingBot):
-    def do_collect(self, shared):
-        settings = Settings.load_settings()
-
-        if not Settings.check_enabled(settings):
-            return
-
-        self.press_world_button(settings)
-        self.press_world_button(settings)
-
-        self.mutate_ants(settings)
-        self.hatch_ants(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")
@@ -1253,74 +1434,6 @@ class VIPStoreBot(MorningBonusesCollectingBot):
             return
 
         self.buy_vip_store(settings)
-
-    def run(self, shared):
-        logger.info(f"Ready to run the collecting bot on {self.device.name}")
-
-        self.do_collect(shared)
-
-
-class StoreBot(MorningBonusesCollectingBot):
-    ITEMS_MAPPING = {
-        "cell_fluid": CommonTemplates.CELL_FLUID,
-        "cell_nucleus": CommonTemplates.CELL_NUCLEUS,
-        "genetic_factor_i": CommonTemplates.GENETIC_FACTOR_I,
-        "genetic_factor_ii": CommonTemplates.GENETIC_FACTOR_II,
-        "genetic_factor_iii": CommonTemplates.GENETIC_FACTOR_III,
-        "dna": CommonTemplates.DNA,
-        "advanced_dna": CommonTemplates.ADVANCED_DNA,
-        "germ": CommonTemplates.GERM,
-        "inducible_enzyme": CommonTemplates.INDUCIBLE_ENZYME,
-        "fungus_nutrient_i": CommonTemplates.FUNGUS_NUTRIENT_I,
-        "fungus_nutrient_ii": CommonTemplates.FUNGUS_NUTRIENT_II,
-        "hypha": CommonTemplates.HYPHA,
-        "special_hypha": CommonTemplates.SPECIAL_HYPHA
-    }
-
-    def press_left_tab(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "storeLeftTab", sleep_duration)
-
-    def press_right_tab(self, settings, sleep_duration=SLEEP_SHORT):
-        self.press_position(settings, "storeLeftTab", sleep_duration)
-
-    def swipe_store_screen_down(self, settings, sleep_duration=SLEEP_SHORT):
-        self.swipe(settings, "swipeStoreScreenDown", duration_ms=500)
-        sleep(settings[sleep_duration])
-
-    def do_store(self, settings, store_name):
-        icon_name = f"{store_name}Icon"
-        self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
-
-        if store_name in ("epopticFungiStore", "duelStore"):
-            self.press_left_tab(settings)
-
-        for _ in range(2):
-            self.swipe_store_screen_down(settings)
-
-        item_names = settings["storeBuyItems"][store_name]
-        for item_name in item_names:
-            item_template = self.ITEMS_MAPPING[item_name]
-            found = self.find_and_press_template(settings, item_template, "storeItemsArea", threshold=0.8, shift_y=170)
-            if found:
-                self.press_position(settings, "storeItemClaimButton", sleep_duration=SLEEP_SHORT)
-                self.press_position(settings, "storeItemClaimConfirmButton", sleep_duration=SLEEP_SHORT)
-                self.press_position(settings, icon_name, sleep_duration=SLEEP_SHORT)
-
-    def do_collect(self, shared):
-        settings = Settings.load_settings()
-
-        if not Settings.check_enabled(settings):
-            return
-
-        found_task = self.find_todo_task(settings, CommonTemplates.DUEL_STORE)
-        if not found_task:
-            return
-
-        self.do_store(settings, "epopticFungiStore")
-        self.do_store(settings, "duelStore")
-        self.do_store(settings, "mineStore")
-        self.do_store(settings, "specialAntDuelStore")
-        self.press_back_button(settings)
 
     def run(self, shared):
         logger.info(f"Ready to run the collecting bot on {self.device.name}")

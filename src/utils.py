@@ -67,6 +67,26 @@ class CommonTemplates(BaseTemplates):
     HYPHA = "hypha.png"
     SPECIAL_HYPHA = "special_hypha.png"
     DUEL_STORE = "duel_store_icon.png"
+    CELL_LUCKY_PACK_II = "cell_lucky_pack_ii.png"
+    CELL_LUCKY_PACK_III = "cell_lucky_pack_iii.png"
+    CHEST_OF_RSS = "chest_of_rss.png"
+    CREDITS = "credits.png"
+    DIAMONDS_BIG = "diamonds_big.png"
+    DIAMONDS_MEDIUM = "diamonds_medium.png"
+    DIAMONDS_SMALL = "diamonds_small.png"
+    DIAMONDS_TINY = "diamonds_tiny.png"
+    DUEL_OF_QUEENS_CHEST = "duel_of_queens_chest.png"
+    EXPIRED_ITEM = "expired_item.png"
+    INSECT_EGG = "insect_egg.png"
+    INSECT_REMAIN = "insect_remain.png"
+    NORMAL_RASPBERRY = "normal_raspberry.png"
+    SPECIAL_ANTS_LUCKY_PACK = "special_ants_lucky_pack.png"
+    POINTS_BONUS = "points_bonus.png"
+    ANTHILL_BUFF_ICON = "anthill_buff_icon.png"
+    ADVANCED_RASPBERRY_BONUS = "advanced_raspberry_bonus.png"
+    ONE_TIME_OFFER = "one_time_offer.png"
+    TIME_LIMITED_OFFER = "time_limited_offer.png"
+    MUTATION_OFFER = "mutation_offer.png"
 
 
 class HeaderTemplates(BaseTemplates):
@@ -85,13 +105,25 @@ class ButtonTemplates(BaseTemplates):
     EXPLORE = "explore.png"
     EXPLORE_CLAIM = "explore_claim.png"
     BENEFITS_CLAIM = "benefits_claim.png"
+    ITEM_BATCH_USE = "item_batch_use.png"
+    ITEM_USE = "item_use.png"
+    ITEM_REDEEM = "item_redeem.png"
 
 
 class EventTemplates(BaseTemplates):
     _folder_name = "events"
 
     FORCE_OF_TIDES = "force_of_tides.png"
+    FORCE_OF_DESERT = "force_of_desert.png"
     VIP_STORE = "vip_store.png"
+    PANGOLIN = "pangolin.png"
+    STRONGEST_WARZONE = "strongest_warzone.png"
+
+
+class AlertTemplates(BaseTemplates):
+    _folder_name = "alerts"
+
+    CANNOT_SWITCH_FORMATION = "cannot_switch_formation.png"
 
 
 class ExtractText:
